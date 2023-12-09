@@ -1,0 +1,112 @@
+.main {
+    margin: 0;
+    padding: 0;
+}
+
+.main::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    /*background: url('C:\cca_app\cca-app\src\components\login\shutterstock_2074960381.jpg') no-repeat center center fixed;*/
+    overflow: auto;
+    margin: auto;
+    background: linear-gradient(315deg, rgb(236, 170, 56) 3%, rgb(59, 152, 240) 38%, rgba(48,238,226,1) 68%, rgb(245, 170, 78) 98%);
+    animation: gradient 15s ease infinite;
+    -webkit-background-size: cover;
+    -moz-background-size: cover;
+    -o-background-size: cover;
+    background-size: 400% 400%;
+    background-attachment: fixed;
+    opacity: 0.6; 
+    z-index: -1;
+}
+
+@keyframes gradient {
+    0% {
+        background-position: 0% 0%;
+    }
+    50% {
+        background-position: 100% 100%;
+    }
+    100% {
+        background-position: 0% 0%;
+    }
+}
+
+.wave {
+    background: rgb(255 255 255 / 25%);
+    border-radius: 1000% 1000% 0 0;
+    position: fixed;
+    width: 200%;
+    height: 12em;
+    animation: wave 10s -3s linear infinite;
+    transform: translate3d(0, 0, 0);
+    opacity: 0.8;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+}
+
+.wave:nth-of-type(2) {
+    bottom: -1.25em;
+    animation: wave 18s linear reverse infinite;
+    opacity: 0.8;
+}
+
+.wave:nth-of-type(3) {
+    bottom: -2.5em;
+    animation: wave 20s -1s reverse infinite;
+    opacity: 0.9;
+}
+
+@keyframes wave {
+    2% {
+        transform: translateX(1);
+    }
+
+    25% {
+        transform: translateX(-25%);
+    }
+
+    50% {
+        transform: translateX(-50%);
+    }
+
+    75% {
+        transform: translateX(-25%);
+    }
+
+    100% {
+        transform: translateX(1);
+    }
+}
+
+
+.authen{
+    display:block;
+    background: linear-gradient(to right, #5e6669, #283048);
+    /*background: linear-gradient(to right, #516395, #614385);*/
+    border-style: none;
+    border-radius: 20px;
+    box-shadow: rgba(0, 0, 0, 0.4) 0px 30px 90px;
+    background-size: 500px 100%;
+    background-position: 50% 100%;
+    background-repeat: no-repeat;
+    padding: 38px;
+    --colors-inputLabelText: white;
+    --colors-anchorTextColor: white;
+    --colors-inputText: white;
+    --colors-defaultButtonText: black;
+    --colors-defaultButtonBackgroundHover: rgba(128, 128, 128, 0.74);
+    font-weight: 547;
+    justify-content: center;
+    align-items: center;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    margin-right: -50%;
+    transform: translate(-50%,-50%);
+}
