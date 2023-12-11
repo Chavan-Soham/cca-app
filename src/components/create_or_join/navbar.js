@@ -24,7 +24,6 @@ export function Navbar(){
   };
 
   const handleClose = () => {
-    
     setAnchorEl(null);
   };
 
@@ -33,7 +32,9 @@ export function Navbar(){
     if (error) {
       console.log(error);
     }
-    navigate("/#")
+    else{
+      navigate("/#")
+    }
   }
 
   return (
