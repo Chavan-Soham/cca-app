@@ -1,13 +1,36 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Card from '@mui/material/Card';
 import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { Button, CardActionArea, CardActions } from '@mui/material';
+import supabase from "../../supabaseClient"
 
 export default function ClassCards() {
+  const [classNames,setClassNames]=useState();
+  
+  async function fetchClassNames(){
+    const getId = await supabase.auth.getUser()
+    const teacher_id=getId.data.user.id;
+
+    try {
+      const {data,error}= await supabase
+       .from('Course')
+       .select('course_name, teacher_id')
+       .eq('teacher_id', teacher_id)
+
+      if (data) {
+        setClassNames(data);
+      }
+      if (error ) {
+        console.log(error)
+      }
+    } catch (error) {
+      console.log(error)
+    }
+  }
   return (
-    <Card sx={{ maxWidth: 345 }}>
+    {/*<Card sx={{ maxWidth: 345 }}>
       <CardActionArea>
         <CardMedia
           component="img"
@@ -33,6 +56,6 @@ export default function ClassCards() {
           Delete
         </Button>
       </CardActions>
-    </Card>
+  </Card>*/}
   );
 }

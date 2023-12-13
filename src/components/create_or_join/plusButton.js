@@ -119,7 +119,6 @@ export default function OpenIconSpeedDial() {
             Submit
           </Button>
         </DialogActions>
-      </Dialog>
-    </Box>
+      </Dialog>    </Box>
   );
 }
