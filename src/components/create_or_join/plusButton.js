@@ -6,81 +6,50 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import EditIcon from '@mui/icons-material/Edit';
 import { AddBoxRounded, CloseRounded, PeopleSharp } from '@mui/icons-material';
 import "./create_or_join.css"
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Input, TextField } from '@mui/material';
 import supabase from "../../supabaseClient"
 
 
 
 
 export default function OpenIconSpeedDial() {
-  const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  const [joinDialogOpen, setJoinDialogOpen] = useState(false)
+  const [open, setOpen] = useState(false)
   const [teacherName, setTeacherName] = useState('')
   const [className, setClassName] = useState('')
   const [password, setPassword] = useState('')
   const [description, setDescription] = useState('')
-  const [passwordJoin, setPasswordJoin] = useState('')
-  
 
-
-
-  const handleOpenCreate = () => {
-    setCreateDialogOpen(true);
+  const handleOpen = () => {
+    setOpen(true);
   }
 
-  const handleCloseCreate = () => {
-    setCreateDialogOpen(false)
+  const handleClose = () => {
+    setOpen(false)
     setTeacherName('')
     setClassName('')
     setDescription('')
     setPassword('')
   }
 
-  const handleOpenJoin = () => {
-    setJoinDialogOpen(true)
-  }
 
-  const handleCloseJoin = () => {
-    setJoinDialogOpen(false)
-  }
-
-  const handleSubmitJoin = () => {
-    console.log(passwordJoin)
-    handleCloseJoin()
-  }
-
-  const handleSubmitCreate = async() => {
-    console.log(teacherName)
-    console.log(className)
-    console.log(password)
-    console.log(description)
-
+  const handleSubmit = async() => {
     const getId = await supabase.auth.getUser()
-    const user_id =  getId.data.user.id;
-
-    const sameName = await supabase
-      .from("class")
-      .select("class_name")
-      .eq("created_by", user_id)
-      .match({class_name: className})
-      
-
-    if (sameName.data.length > 0) {
-      alert(`${className} already exists`)
-    }
-  
-    if (!sameName) {
+    const user_id = getId.data.user.id;
+    try {
       const {error} = await supabase
-        .from("class")
+        .from('class')
         .insert([
-          {class_name: className, teacher_name: teacherName, password: password, class_description: description}
+          {teacher_name: teacherName, created_at: new Date().toISOString(), class_name: className, password: password, created_by: user_id} 
         ])
-      if (error) {
-        console.log(error)
-      }
+        if (error) {
+          console.log(error)
+        }
+    } catch (error) {
+      console.log(error)
     }
-    handleCloseCreate();
-  };
+    
+    handleClose();
+  }
   
 
   return (
@@ -97,79 +66,51 @@ export default function OpenIconSpeedDial() {
             key="add"
             icon={<AddBoxRounded/>}
             tooltipTitle="Create Class"
-            onClick={handleOpenCreate}
+            onClick={handleOpen}
           />
 
           <SpeedDialAction
             key="Join"
             icon={<PeopleSharp/>}
             tooltipTitle="Join Class"
-            onClick={handleOpenJoin}
           />
       </SpeedDial>
 
-      <Dialog open={joinDialogOpen} onClose={handleCloseJoin}>
-        <DialogTitle>Join Class via PassCode</DialogTitle>
-        <DialogContent>
-          <TextField
-            label="Password"
-            type="password"
-            value={passwordJoin}
-            sx={{marginBottom: '2px'}}
-            onChange={(event) => setPasswordJoin(event.target.value)}
-          />
-        </DialogContent>
-        <DialogActions>
-          <IconButton onClick={handleCloseJoin} color="primary">
-            <CloseRounded sx={{ backgroundColor: "ButtonHighlight", width: "30px", height: "30px"}}/>
-          </IconButton>
-          <Button variant="contained" onClick={handleSubmitJoin} color="primary">
-            Join
-          </Button>
-        </DialogActions>
-      </Dialog>
-      
 
-
-      <Dialog open={createDialogOpen} onClose={handleCloseCreate}>
-        <DialogTitle >Create Class</DialogTitle><br></br>
-        <DialogContent sx={{height: "300px", width: "280px"}}>
-          <TextField
+      <Dialog open={open} onClose={handleClose}>
+        <DialogTitle>Create Class</DialogTitle>
+        <DialogContent sx={{marginTop: "5px"}}>
+          <Input
             label="Teacher Name"
             value={teacherName}
-            sx={{marginBottom: '10px'}}
             onChange={(event)=>setTeacherName(event.target.value)}
-          /><br></br>
+          />
           <TextField
             label="Class Name"
             value={className}
-            sx={{marginBottom: '10px'}}
             onChange={(event)=>setClassName(event.target.value)}
-          /><br></br>
+          />
           <TextField
             label="Course Description"
             value={description}
-            sx={{marginBottom: '10px'}}
             onChange={(event)=>setDescription(event.target.value)}
-          /><br></br>
+          />
           <TextField
             type='password'
             label="Password"
             value={password}
-            sx={{marginBottom: '10px'}}
             onChange={(event)=>setPassword(event.target.value)}
           />
-          
         </DialogContent>
         <DialogActions>
-          <IconButton onClick={handleCloseCreate} color="primary">
+          <IconButton onClick={handleClose} color="primary">
             <CloseRounded sx={{ backgroundColor: "ButtonHighlight", width: "30px", height: "30px"}}/>
           </IconButton>
-          <Button variant="contained" onClick={handleSubmitCreate} color="primary">
+          <Button variant="contained" onClick={handleSubmit} color="primary">
             Submit
           </Button>
         </DialogActions>
-      </Dialog>
-    </Box>
+      </Dialog>    
+      </Box>
   );
 }
