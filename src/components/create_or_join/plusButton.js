@@ -6,7 +6,7 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import EditIcon from '@mui/icons-material/Edit';
 import { AddBoxRounded, CloseRounded, PeopleSharp } from '@mui/icons-material';
 import "./create_or_join.css"
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Input, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material';
 import supabase from "../../supabaseClient"
 
 
@@ -18,6 +18,11 @@ export default function OpenIconSpeedDial() {
   const [className, setClassName] = useState('')
   const [password, setPassword] = useState('')
   const [description, setDescription] = useState('')
+  const [file, setFile] = useState(null);
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
+    };
 
   const handleOpen = () => {
     setOpen(true);
@@ -31,22 +36,33 @@ export default function OpenIconSpeedDial() {
     setPassword('')
   }
 
-
   const handleSubmit = async() => {
+    console.log(className)
+    
     const getId = await supabase.auth.getUser()
     const user_id = getId.data.user.id;
-    try {
+      const {data} = await supabase
+        .from("class")
+        .select("class_name")
+        .eq("created_by", user_id)
+        .match({class_name: className})
+
+      if (data && data.length > 0) {
+        console.log(data)
+        alert(`${className} already exists`)
+      }
+      else{
+
       const {error} = await supabase
         .from('class')
         .insert([
-          {teacher_name: teacherName, created_at: new Date().toISOString(), class_name: className, password: password, created_by: user_id} 
+          {teacher_name: teacherName, created_at: new Date().toISOString(), class_name: className, password: password,class_description: description, created_by: user_id} 
         ])
         if (error) {
           console.log(error)
         }
-    } catch (error) {
-      console.log(error)
-    }
+      }
+    
     
     handleClose();
   }
@@ -79,33 +95,36 @@ export default function OpenIconSpeedDial() {
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Create Class</DialogTitle>
-        <DialogContent sx={{}}>
-          <Input
+        <DialogContent sx={{margin: "10px"}}>
+          <TextField
             label="Teacher Name"
+            sx={{marginTop: "8px"}}
             value={teacherName}
             onChange={(event)=>setTeacherName(event.target.value)}
-          />
+          /><br></br>
           <TextField
             label="Class Name"
+            sx={{marginTop: "8px"}}
             value={className}
             onChange={(event)=>setClassName(event.target.value)}
-          />
+          /><br></br>
           <TextField
             label="Course Description"
+            sx={{marginTop: "8px"}}
             value={description}
             onChange={(event)=>setDescription(event.target.value)}
-          />
+          /><br></br>
           <TextField
             type='password'
             label="Password"
+            sx={{marginTop: "8px"}}
             value={password}
             onChange={(event)=>setPassword(event.target.value)}
-          />
+          /><br></br>
+          
         </DialogContent>
         <DialogActions>
-          <IconButton onClick={handleClose} color="primary">
-            <CloseRounded sx={{ backgroundColor: "ButtonHighlight", width: "30px", height: "30px"}}/>
-          </IconButton>
+          <Button onClick={handleClose} color='warning' variant="contained">Close</Button>
           <Button variant="contained" onClick={handleSubmit} color="primary">
             Submit
           </Button>
