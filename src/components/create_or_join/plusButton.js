@@ -79,23 +79,23 @@ export default function OpenIconSpeedDial() {
 
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Create Class</DialogTitle>
-        <DialogContent>
+        <DialogContent sx={{}}>
           <Input
             label="Teacher Name"
             value={teacherName}
             onChange={(event)=>setTeacherName(event.target.value)}
           />
-          <Input
+          <TextField
             label="Class Name"
             value={className}
             onChange={(event)=>setClassName(event.target.value)}
           />
-          <Input
+          <TextField
             label="Course Description"
             value={description}
             onChange={(event)=>setDescription(event.target.value)}
           />
-          <Input
+          <TextField
             type='password'
             label="Password"
             value={password}
