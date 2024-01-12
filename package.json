@@ -46,5 +46,17 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
-  }
+  },
+  "description": "This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).",
+  "main": "app .js",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chavan-Soham/cca-app.git"
+  },
+  "author": "soham",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chavan-Soham/cca-app/issues"
+  },
+  "homepage": "https://github.com/Chavan-Soham/cca-app#readme"
 }
