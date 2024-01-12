@@ -34,7 +34,7 @@ export function WelcomeUser(){
                 <h1 style={{
                     position: 'absolute',
                     left: '50%',
-                    top: '36%',
+                    top: '32%',
                     transform: 'translate(-50%, -50%)',
                     fontSize: '30px',
                     textAlign: 'center', // Center text
