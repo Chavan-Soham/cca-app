@@ -6,7 +6,7 @@ import SpeedDialAction from '@mui/material/SpeedDialAction';
 import EditIcon from '@mui/icons-material/Edit';
 import { AddBoxRounded, CloseRounded, PeopleSharp } from '@mui/icons-material';
 import "./create_or_join.css"
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, Input, TextField } from '@mui/material';
 import supabase from "../../supabaseClient"
 
 
@@ -33,13 +33,13 @@ export default function OpenIconSpeedDial() {
 
 
   const handleSubmit = async() => {
-    //const getId = await supabase.auth.getUser()
-    //const user_id = getId.data.user.id;
+    const getId = await supabase.auth.getUser()
+    const user_id = getId.data.user.id;
     try {
       const {error} = await supabase
-        .from('Teacher')
+        .from('class')
         .insert([
-          {teacher_name: teacherName, created_at: new Date().toISOString()} 
+          {teacher_name: teacherName, created_at: new Date().toISOString(), class_name: className, password: password, created_by: user_id} 
         ])
         if (error) {
           console.log(error)
@@ -47,18 +47,9 @@ export default function OpenIconSpeedDial() {
     } catch (error) {
       console.log(error)
     }
-
-    const{error} = await supabase
-      .from('Course')
-      .insert([
-        {course_name:className, created_at: new Date().toISOString(), course_description:description}
-      ])
-      if (error) {
-        console.log(error)
-      }
     
     handleClose();
-  };
+  }
   
 
   return (
@@ -89,22 +80,22 @@ export default function OpenIconSpeedDial() {
       <Dialog open={open} onClose={handleClose}>
         <DialogTitle>Create Class</DialogTitle>
         <DialogContent>
-          <TextField
+          <Input
             label="Teacher Name"
             value={teacherName}
             onChange={(event)=>setTeacherName(event.target.value)}
           />
-          <TextField
+          <Input
             label="Class Name"
             value={className}
             onChange={(event)=>setClassName(event.target.value)}
           />
-          <TextField
+          <Input
             label="Course Description"
             value={description}
             onChange={(event)=>setDescription(event.target.value)}
           />
-          <TextField
+          <Input
             type='password'
             label="Password"
             value={password}
@@ -119,6 +110,7 @@ export default function OpenIconSpeedDial() {
             Submit
           </Button>
         </DialogActions>
-      </Dialog>    </Box>
+      </Dialog>    
+      </Box>
   );
 }
