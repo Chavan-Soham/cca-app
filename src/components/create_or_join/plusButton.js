@@ -4,9 +4,9 @@ import SpeedDial from '@mui/material/SpeedDial';
 import SpeedDialIcon from '@mui/material/SpeedDialIcon';
 import SpeedDialAction from '@mui/material/SpeedDialAction';
 import EditIcon from '@mui/icons-material/Edit';
-import { AddBoxRounded, CloseRounded, PeopleSharp } from '@mui/icons-material';
+import { AddBoxRounded, PeopleSharp } from '@mui/icons-material';
 import "./create_or_join.css"
-import { Button, Dialog, DialogActions, DialogContent, DialogTitle, IconButton, TextField } from '@mui/material';
+import { Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField } from '@mui/material';
 import supabase from "../../supabaseClient"
 
 
@@ -42,7 +42,7 @@ export default function OpenIconSpeedDial() {
     const getId = await supabase.auth.getUser()
     const user_id = getId.data.user.id;
       const {data} = await supabase
-        .from("class")
+        .from("class_duplicate")
         .select("class_name")
         .eq("created_by", user_id)
         .match({class_name: className})
@@ -52,11 +52,30 @@ export default function OpenIconSpeedDial() {
         alert(`${className} already exists`)
       }
       else{
+        const { data, error:e } = await supabase.storage
+        .from('class-images')
+        .upload(`images/${file.name}`, file, { public: true });
+        
+        if (data) {
+          console.log(data)
+        }
+        const imageUrl = data.path;
+
+      if (e) {
+        console.error('Error uploading image:', e.message);
+      }
+
+      const {data: getImage, error: errorMsg} = await supabase.storage.from("class-images").getPublicUrl(imageUrl)
+      console.log(getImage.publicUrl)
+      const publicUrl = getImage.publicUrl
+      if (errorMsg) {
+        console.log(errorMsg)
+      }
 
       const {error} = await supabase
-        .from('class')
+        .from('class_duplicate')
         .insert([
-          {teacher_name: teacherName, created_at: new Date().toISOString(), class_name: className, password: password,class_description: description, created_by: user_id} 
+          {teacher_name: teacherName, created_at: new Date().toISOString(), class_name: className, password: password,class_description: description, created_by: user_id, class_image: publicUrl} 
         ])
         if (error) {
           console.log(error)
@@ -113,6 +132,11 @@ export default function OpenIconSpeedDial() {
             sx={{marginTop: "8px"}}
             value={description}
             onChange={(event)=>setDescription(event.target.value)}
+          /><br></br>
+          <TextField
+            sx={{marginTop: "8px"}}
+            type='file'
+            onChange={handleFileChange}
           /><br></br>
           <TextField
             type='password'
