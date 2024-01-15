@@ -19,11 +19,12 @@ export function CreateOrJoin() {
     const [user, setUser] = useState();
     const navigate = useNavigate()
     const [userName, setUserName] = useState()
-    const [className, setClassName] = useState()
+    /* const [className, setClassName] = useState()
     const [classDescription, setClassDescription] = useState()
-    const [classImage, setClassImage] = useState()
+    const [classImage, setClassImage] = useState() */
+    const [classes, setClasses] = useState([]);
 
-    async function fetchClass() {
+    async function fetchClasses() {
         const getId = await supabase.auth.getUser()
         const user_id = getId.data.user.id;
 
@@ -33,29 +34,45 @@ export function CreateOrJoin() {
             .eq("created_by", user_id)
 
         if (data) {
-            setClassName(data[0].class_name)
-            setClassDescription(data[0].class_description)
-            setClassImage(data[0].class_image)
+            console.log(data)
+           setClasses(data);
         }
         if (error) {
             console.log(error)
         }
     }
+    useEffect(() => {
+        fetchUser();
+        fetchUserName();
+        fetchClasses();
+    }, [])
+
+    async function deleteClass(class_name, index){
+        const getId = await supabase.auth.getUser()
+        const created_by = getId.data.user.id;
+
+        const {error} = await supabase
+            .from("class_duplicate")
+            .delete()
+            .eq("class_name", class_name)
+            .eq("created_by", created_by)
+            .single()
+        if (error) {
+            console.log(error)
+        }
+        else{
+            $(`#card-${index}`).hide();
+            setClasses((prevClasses) => prevClasses.filter((classItem) => classItem.class_name !== class_name));
+        }
+        
+    }
 
     function displayClass() {
-        fetchClass()
-        const classes = [
-            {
-                class_name: className,
-                class_description: classDescription,
-                class_image: classImage
-            }
-        ]
 
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
                 {classes.map((classItem, index) => (
-                    <Card key={index} sx={{ maxWidth: 345, margin: 2 }}>
+                    <Card key={index} id={`card-${index}`} sx={{ maxWidth: 345, margin: 2 }}>
                         <CardActionArea>
                             <CardMedia
                                 component="img"
@@ -74,14 +91,22 @@ export function CreateOrJoin() {
                             </CardContent>
                         </CardActionArea>
                         <CardActions>
-                            <Button size="small" color="primary">
-                                Share
+                            <Button size="small" color="secondary" variant="contained">
+                                Copy passcode
+                            </Button>
+                            <Button size="small" color="primary" variant="contained">
+                                Edit
+                            </Button>
+                            <Button size="small" color="warning" variant="contained" onClick={()=> deleteClass(classItem.class_name, index)}>
+                                Delete
                             </Button>
                         </CardActions>
                     </Card>
                 ))}
+                {()=> navigate("/create_or_join")}
             </div>
         );
+        
     }
 
     async function fetchUserName() {
@@ -116,10 +141,7 @@ export function CreateOrJoin() {
         }
     }
 
-    useEffect(() => {
-        fetchUser();
-        fetchUserName();
-    }, [])
+    
 
     function printName() {
         return <h1 style={{ textAlign: "center", fontFamily: "Bookman Old Style", fontWeight: "normal", opacity: "80%" }}>Welcome {userName}</h1>
@@ -148,6 +170,7 @@ export function CreateOrJoin() {
             <br />
             {printName()}
             <br/>
+            <h1>{userName} your created classes</h1>
             {displayClass()}
             <br />
             <OpenIconSpeedDial />
