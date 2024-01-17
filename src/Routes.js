@@ -1,4 +1,5 @@
 import { CreateOrJoin } from "./components/create_or_join/CreateOrJoin";
+import { ClassDashboard } from "./components/dashboard/dashboard";
 import Login from "./components/login/login";
 import { WelcomeUser } from "./components/login/welcomeUser";
 const { createBrowserRouter } = require("react-router-dom");
@@ -17,6 +18,10 @@ const routes = createBrowserRouter(
         {
             path: "/welcomeUser",
             element: <WelcomeUser/>
+        },
+        {
+            path: "/dashboard",
+            element: <ClassDashboard/>
         }
     ]
 )

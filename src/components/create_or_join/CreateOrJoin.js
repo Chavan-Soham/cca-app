@@ -13,6 +13,7 @@ import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
 import Typography from '@mui/material/Typography';
 import { CardActionArea, CardActions } from '@mui/material';
+import $ from "jquery"
 
 
 export function CreateOrJoin() {
@@ -23,6 +24,7 @@ export function CreateOrJoin() {
     const [classDescription, setClassDescription] = useState()
     const [classImage, setClassImage] = useState() */
     const [classes, setClasses] = useState([]);
+    const [clickedClass, setClickedClass] = useState();
 
     async function fetchClasses() {
         const getId = await supabase.auth.getUser()
@@ -56,28 +58,33 @@ export function CreateOrJoin() {
             .delete()
             .eq("class_name", class_name)
             .eq("created_by", created_by)
-            .single()
+        
         if (error) {
             console.log(error)
         }
-        else{
-            $(`#card-${index}`).hide();
-            setClasses((prevClasses) => prevClasses.filter((classItem) => classItem.class_name !== class_name));
-        }
+        $(`#card-${index}`).hide();
+       
+    }
+    function handleClassClick(classItem){
+        setClickedClass(classItem)
+        console.log(classItem)
         
     }
+    function navigateClickedClass(){
+        handleClassClick()
+        navigate("/dashboard", {state: {clickedClass}})
+    }
+    
 
     function displayClass() {
-
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
                 {classes.map((classItem, index) => (
-                    <Card key={index} id={`card-${index}`} sx={{ maxWidth: 345, margin: 2 }}>
+                    <Card key={index} id={`card-${index}`} onClick = {()=> {handleClassClick(classItem.class_name); navigateClickedClass()}} sx={{ maxWidth: 345, margin: 2 }}>
                         <CardActionArea>
                             <CardMedia
                                 component="img"
                                 height="140"
-                                // Use the actual URL from your class data
                                 image={classItem.class_image}
                                 alt={classItem.class_name}
                             />
@@ -176,4 +183,4 @@ export function CreateOrJoin() {
             <OpenIconSpeedDial />
         </div>
     );
-}
+    }
