@@ -65,22 +65,20 @@ export function CreateOrJoin() {
         $(`#card-${index}`).hide();
        
     }
-    function handleClassClick(classItem){
-        setClickedClass(classItem)
-        console.log(classItem)
-        
-    }
+
     function navigateClickedClass(){
-        handleClassClick()
-        navigate("/dashboard", {state: {clickedClass}})
-    }
+        
+        if (clickedClass) {
+            navigate("/dashboard", {state: {clickedClass}})
+        }
+    } 
     
 
     function displayClass() {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
                 {classes.map((classItem, index) => (
-                    <Card key={index} id={`card-${index}`} onClick = {()=> {handleClassClick(classItem.class_name); navigateClickedClass()}} sx={{ maxWidth: 345, margin: 2 }}>
+                    <Card key={index} id={`card-${index}`} onClick = {async()=>{ setClickedClass(classItem.class_name);}} {...navigateClickedClass()} sx={{ maxWidth: 345, margin: 2 }}>
                         <CardActionArea>
                             <CardMedia
                                 component="img"
