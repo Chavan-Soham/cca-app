@@ -7,7 +7,7 @@ import "./login.css"
 
 export default function Login(){
     const navigate = useNavigate()
-    const [userName, setUserName] = useState()
+    
 
     async function IfNameExists(){
         const getId = await supabase.auth.getUser()
