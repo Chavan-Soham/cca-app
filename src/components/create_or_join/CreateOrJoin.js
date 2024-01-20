@@ -20,9 +20,6 @@ export function CreateOrJoin() {
     const [user, setUser] = useState();
     const navigate = useNavigate()
     const [userName, setUserName] = useState()
-    /* const [className, setClassName] = useState()
-    const [classDescription, setClassDescription] = useState()
-    const [classImage, setClassImage] = useState() */
     const [classes, setClasses] = useState([]);
     const [clickedClass, setClickedClass] = useState();
 
