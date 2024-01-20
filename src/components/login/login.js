@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../supabaseClient"
 import { Auth } from "@supabase/auth-ui-react";
@@ -7,7 +7,6 @@ import "./login.css"
 
 export default function Login(){
     const navigate = useNavigate()
-    const [userName, setUserName] = useState()
 
     async function IfNameExists(){
         const getId = await supabase.auth.getUser()
