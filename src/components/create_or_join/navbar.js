@@ -28,13 +28,15 @@ export function Navbar(){
   };
 
   async function signOut(){
-    const{error} = await supabase.auth.signOut()
+    const {error} = await supabase.auth.signOut();
     if (error) {
       console.log(error);
     }
-    else{
-      navigate("/#")
-    }
+  }
+
+  function logout(){
+    signOut()
+    navigate("/")
   }
 
   return (
@@ -83,7 +85,7 @@ export function Navbar(){
               <Typography textAlign="center">Update Profile Pic</Typography>
             </MenuItem>
             <MenuItem onClick={handleClose}>
-              <Typography textAlign="center" onClick={signOut}>Logout</Typography>
+              <Typography textAlign="center" onClick={logout}>Logout</Typography>
             </MenuItem>
           </Menu>
         </Toolbar>

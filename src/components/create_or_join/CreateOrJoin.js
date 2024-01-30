@@ -34,7 +34,7 @@ export function CreateOrJoin() {
 
         if (data) {
             console.log(data)
-           setClasses(data);
+            setClasses(data);
         }
         if (error) {
             console.log(error)
@@ -46,7 +46,7 @@ export function CreateOrJoin() {
         fetchClasses();
     }, [])
 
-    async function deleteClass(class_name, index){
+    async function deleteClass(class_name, index, navigateToDashboard){
         const getId = await supabase.auth.getUser()
         const created_by = getId.data.user.id;
 
@@ -59,7 +59,9 @@ export function CreateOrJoin() {
         if (error) {
             console.log(error)
         }
+        
         $(`#card-${index}`).hide();
+        console.log(`${class_name} deleted successfully`);
        
     }
 
@@ -68,7 +70,7 @@ export function CreateOrJoin() {
         if (clickedClass) {
             navigate("/dashboard", {state: {clickedClass}})
         }
-    } 
+    }
     
 
     function displayClass() {
@@ -99,7 +101,7 @@ export function CreateOrJoin() {
                             <Button size="small" color="primary" variant="contained">
                                 Edit
                             </Button>
-                            <Button size="small" color="warning" variant="contained" onClick={()=> deleteClass(classItem.class_name, index)}>
+                            <Button size="small" color="warning" variant="contained" onClick={()=> deleteClass(classItem.class_name, index, false)}>
                                 Delete
                             </Button>
                         </CardActions>
