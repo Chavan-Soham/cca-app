@@ -6,14 +6,19 @@ import { useState, useEffect } from "react";
 import supabase from "../../supabaseClient";
 import "./create_or_join.css"
 import { Button } from "@mui/material";
-import { UTurnRight } from "@mui/icons-material";
+import { DeleteForever, UTurnRight } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import Card from '@mui/material/Card';
-import CardContent from '@mui/material/CardContent';
 import CardMedia from '@mui/material/CardMedia';
-import Typography from '@mui/material/Typography';
-import { CardActionArea, CardActions } from '@mui/material';
 import $ from "jquery"
+import AspectRatio from '@mui/joy/AspectRatio';
+import Card from '@mui/joy/Card';
+import CardContent from '@mui/joy/CardContent';
+import CardOverflow from '@mui/joy/CardOverflow';
+import Divider from '@mui/joy/Divider';
+import Typography from '@mui/joy/Typography';
+import IconButton from '@mui/joy/IconButton';
+import { Link } from "@mui/joy";
+import Edit from "@mui/icons-material/Edit";
 
 
 export function CreateOrJoin() {
@@ -46,7 +51,7 @@ export function CreateOrJoin() {
         fetchClasses();
     }, [])
 
-    async function deleteClass(class_name, index, navigateToDashboard){
+    async function deleteClass(class_name, index){
         const getId = await supabase.auth.getUser()
         const created_by = getId.data.user.id;
 
@@ -65,10 +70,10 @@ export function CreateOrJoin() {
        
     }
 
-    function navigateClickedClass(){
-        
+    function navigateToDashboard(){
+        console.log(clickedClass)
         if (clickedClass) {
-            navigate("/dashboard", {state: {clickedClass}})
+            navigate("/dashboard", { state: { clickedClass } });
         }
     }
     
@@ -76,41 +81,72 @@ export function CreateOrJoin() {
     function displayClass() {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-                {classes.map((classItem, index) => (
-                    <Card key={index} id={`card-${index}`} onClick = {async()=>{ setClickedClass(classItem.class_name);}} {...navigateClickedClass()} sx={{ maxWidth: 345, margin: 2 }}>
-                        <CardActionArea>
-                            <CardMedia
-                                component="img"
-                                height="140"
-                                image={classItem.class_image}
+            {classes.map((classItem, index) => (
+                <Card key={index} id={`card-${index}`} sx={{ width: 320, backgroundColor: "wheat", margin: 2 }}>
+                    <CardOverflow>
+                        <AspectRatio ratio="2">
+                            <img
+                                src={classItem.class_image}
+                                loading="lazy"
                                 alt={classItem.class_name}
                             />
-                            <CardContent>
-                                <Typography gutterBottom variant="h5" component="div">
-                                    {classItem.class_name}
-                                </Typography>
-                                <Typography variant="body2" color="text.secondary">
-                                    {classItem.class_description}
-                                </Typography>
+                        </AspectRatio>
+                        <IconButton
+                            aria-label="Delete class"
+                            size="md"
+                            variant="solid"
+                            color="danger"
+                            sx={{
+                                position: 'absolute',
+                                zIndex: 2,
+                                borderRadius: '50%',
+                                right: '4rem',
+                                bottom: '0rem',
+                                transform: 'translateY(50%)',
+                            }}
+                            onClick={() => deleteClass(classItem.class_name, index)}
+                        >
+                            <DeleteForever />
+                        </IconButton>
+                        <IconButton
+                            aria-label="Edit class"
+                            size="md"
+                            variant="solid"
+                            color="warning"
+                            sx={{
+                                position: 'absolute',
+                                zIndex: 2,
+                                borderRadius: '50%',
+                                right: '1rem',
+                                bottom: '0rem',
+                                transform: 'translateY(50%)',
+                            }}
+                        >
+                            <Edit />
+                        </IconButton>
+                    </CardOverflow>
+                    <CardContent>
+                        <Typography level="title-md">
+                            <Link overlay underline="none" href="/dashboard" onClick={async()=>{ setClickedClass(classItem.class_name);}} {...navigateToDashboard()}>
+                            {classItem.class_name}
+                            </Link>
+                        </Typography>
+                        <Typography level="body-sm">
+                            {classItem.class_description}
+                        </Typography>
+                    </CardContent>
+                    <CardOverflow variant="soft">
+                            <Divider inset="context"/>
+                            <CardContent orientation="horizontal">
+                                <Typography level="body-xs">6.3K views</Typography>
+                                <Divider orientation="vertical" />
+                                <Typography level="body-xs">1 hour ago</Typography>
                             </CardContent>
-                        </CardActionArea>
-                        <CardActions>
-                            <Button size="small" color="secondary" variant="contained">
-                                Copy passcode
-                            </Button>
-                            <Button size="small" color="primary" variant="contained">
-                                Edit
-                            </Button>
-                            <Button size="small" color="warning" variant="contained" onClick={()=> deleteClass(classItem.class_name, index, false)}>
-                                Delete
-                            </Button>
-                        </CardActions>
-                    </Card>
-                ))}
-                {()=> navigate("/create_or_join")}
-            </div>
-        );
-        
+                    </CardOverflow>
+                </Card>
+            ))}
+        </div>
+          );
     }
 
     async function fetchUserName() {
