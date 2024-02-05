@@ -8,7 +8,6 @@ import "./create_or_join.css"
 import { Button } from "@mui/material";
 import { DeleteForever, UTurnRight } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
-import CardMedia from '@mui/material/CardMedia';
 import $ from "jquery"
 import AspectRatio from '@mui/joy/AspectRatio';
 import Card from '@mui/joy/Card';
@@ -19,6 +18,8 @@ import Typography from '@mui/joy/Typography';
 import IconButton from '@mui/joy/IconButton';
 import { Link } from "@mui/joy";
 import Edit from "@mui/icons-material/Edit";
+
+
 
 
 export function CreateOrJoin() {
@@ -51,102 +52,102 @@ export function CreateOrJoin() {
         fetchClasses();
     }, [])
 
-    async function deleteClass(class_name, index){
+    async function deleteClass(class_name, index) {
         const getId = await supabase.auth.getUser()
         const created_by = getId.data.user.id;
 
-        const {error} = await supabase
+        const { error } = await supabase
             .from("class_duplicate")
             .delete()
             .eq("class_name", class_name)
             .eq("created_by", created_by)
-        
+
         if (error) {
             console.log(error)
         }
-        
+
         $(`#card-${index}`).hide();
         console.log(`${class_name} deleted successfully`);
-       
+
     }
 
-    function navigateToDashboard(){
+    function navigateToDashboard() {
         console.log(clickedClass)
         if (clickedClass) {
             navigate("/dashboard", { state: { clickedClass } });
         }
     }
-    
+
 
     function displayClass() {
         return (
             <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
-            {classes.map((classItem, index) => (
-                <Card key={index} id={`card-${index}`} sx={{ width: 320, backgroundColor: "wheat", margin: 2 }}>
-                    <CardOverflow>
-                        <AspectRatio ratio="2">
-                            <img
-                                src={classItem.class_image}
-                                loading="lazy"
-                                alt={classItem.class_name}
-                            />
-                        </AspectRatio>
-                        <IconButton
-                            aria-label="Delete class"
-                            size="md"
-                            variant="solid"
-                            color="danger"
-                            sx={{
-                                position: 'absolute',
-                                zIndex: 2,
-                                borderRadius: '50%',
-                                right: '4rem',
-                                bottom: '0rem',
-                                transform: 'translateY(50%)',
-                            }}
-                            onClick={() => deleteClass(classItem.class_name, index)}
-                        >
-                            <DeleteForever />
-                        </IconButton>
-                        <IconButton
-                            aria-label="Edit class"
-                            size="md"
-                            variant="solid"
-                            color="warning"
-                            sx={{
-                                position: 'absolute',
-                                zIndex: 2,
-                                borderRadius: '50%',
-                                right: '1rem',
-                                bottom: '0rem',
-                                transform: 'translateY(50%)',
-                            }}
-                        >
-                            <Edit />
-                        </IconButton>
-                    </CardOverflow>
-                    <CardContent>
-                        <Typography level="title-md">
-                            <Link overlay underline="none" href="/dashboard" onClick={async()=>{ setClickedClass(classItem.class_name);}} {...navigateToDashboard()}>
-                            {classItem.class_name}
-                            </Link>
-                        </Typography>
-                        <Typography level="body-sm">
-                            {classItem.class_description}
-                        </Typography>
-                    </CardContent>
-                    <CardOverflow variant="soft">
-                            <Divider inset="context"/>
+                {classes.map((classItem, index) => (
+                    <Card key={index} id={`card-${index}`} sx={{ width: 320, backgroundColor: "wheat", margin: 2 }}>
+                        <CardOverflow>
+                            <AspectRatio ratio="2">
+                                <img
+                                    src={classItem.class_image}
+                                    loading="lazy"
+                                    alt={classItem.class_name}
+                                />
+                            </AspectRatio>
+                            <IconButton
+                                aria-label="Delete class"
+                                size="md"
+                                variant="solid"
+                                color="danger"
+                                sx={{
+                                    position: 'absolute',
+                                    zIndex: 2,
+                                    borderRadius: '50%',
+                                    right: '4rem',
+                                    bottom: '0rem',
+                                    transform: 'translateY(50%)',
+                                }}
+                                onClick={() => deleteClass(classItem.class_name, index)}
+                            >
+                                <DeleteForever />
+                            </IconButton>
+                            <IconButton
+                                aria-label="Edit class"
+                                size="md"
+                                variant="solid"
+                                color="warning"
+                                sx={{
+                                    position: 'absolute',
+                                    zIndex: 2,
+                                    borderRadius: '50%',
+                                    right: '1rem',
+                                    bottom: '0rem',
+                                    transform: 'translateY(50%)',
+                                }}
+                            >
+                                <Edit />
+                            </IconButton>
+                        </CardOverflow>
+                        <CardContent>
+                            <Typography level="title-md">
+                                <Link overlay underline="none" href="/dashboard" onClick={async () => { setClickedClass(classItem.class_name); }} {...navigateToDashboard()}>
+                                    {classItem.class_name}
+                                </Link>
+                            </Typography>
+                            <Typography level="body-sm">
+                                {classItem.class_description}
+                            </Typography>
+                        </CardContent>
+                        <CardOverflow variant="soft">
+                            <Divider inset="context" />
                             <CardContent orientation="horizontal">
                                 <Typography level="body-xs">6.3K views</Typography>
                                 <Divider orientation="vertical" />
                                 <Typography level="body-xs">1 hour ago</Typography>
                             </CardContent>
-                    </CardOverflow>
-                </Card>
-            ))}
-        </div>
-          );
+                        </CardOverflow>
+                    </Card>
+                ))}
+            </div>
+        );
     }
 
     async function fetchUserName() {
@@ -181,7 +182,7 @@ export function CreateOrJoin() {
         }
     }
 
-    
+
 
     function printName() {
         return <h1 style={{ textAlign: "center", fontFamily: "Bookman Old Style", fontWeight: "normal", opacity: "80%" }}>Welcome {userName}</h1>
@@ -209,11 +210,11 @@ export function CreateOrJoin() {
             <Navbar />
             <br />
             {printName()}
-            <br/>
+            <br />
             <h1>{userName} your created classes</h1>
             {displayClass()}
             <br />
             <OpenIconSpeedDial />
         </div>
     );
-    }
+}
