@@ -23,10 +23,10 @@ const routes = createBrowserRouter(
             path: "/dashboard",
             element: <ClassDashboard/>
         },
-        {
+        /* {
             path: "/annoucements",
             element: <Announcement/>
-        }
+        } */
     ]
 )
 
