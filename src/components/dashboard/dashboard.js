@@ -165,8 +165,7 @@ export function ClassDashboard() {
     return (
         <div>
             {navbar()}
-            {/* {className()} */}
-            <div id="functionality">
+            <div>
                 {displayDrawerData()}
             </div>
         </div>

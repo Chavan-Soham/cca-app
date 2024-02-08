@@ -5,7 +5,7 @@ import React from "react";
 import { useState, useEffect } from "react";
 import supabase from "../../supabaseClient";
 import "./create_or_join.css"
-import { Button } from "@mui/material";
+import { Button, DialogActions, DialogTitle, TextField } from "@mui/material";
 import { DeleteForever, UTurnRight } from "@mui/icons-material";
 import { useNavigate } from "react-router-dom";
 import $ from "jquery"
@@ -18,6 +18,8 @@ import Typography from '@mui/joy/Typography';
 import IconButton from '@mui/joy/IconButton';
 import { Link } from "@mui/joy";
 import Edit from "@mui/icons-material/Edit";
+import { Dialog, DialogContent } from "@mui/material";
+
 
 
 
@@ -28,7 +30,57 @@ export function CreateOrJoin() {
     const [userName, setUserName] = useState()
     const [classes, setClasses] = useState([]);
     const [clickedClass, setClickedClass] = useState();
+    const [openEditDialog, setOpenEditDialog] = useState(false);
+    const [editClassName, setEditClassName] = useState('');
+    const [editClassDescription, setEditClassDescription] = useState('');
+    const [matchClassName, setMatchClassName] = useState()
+    const [matchClassDescription, setMatchClassDescription] = useState()
 
+    function editClass(classItem){
+        setEditClassName(classItem.class_name)
+        setEditClassDescription(classItem.class_description)
+
+        setMatchClassName(classItem.class_name)
+        setMatchClassDescription(classItem.class_description)
+        console.log(matchClassName)
+        console.log(matchClassDescription)
+        setOpenEditDialog(true)
+    }
+
+
+    const handleEditClose = () => {
+        setOpenEditDialog(false);
+        setEditClassName('');
+        setEditClassDescription('');
+    }
+
+    const handleEditSubmit = async () => {
+        const getId = await supabase.auth.getUser()
+        const user_id = getId.data.user.id;
+
+        const {data} = await supabase
+            .from("class_duplicate")
+            .select("class_name, class_description")
+            .eq("created_by", user_id)
+            .match({class_name: matchClassName, class_description: matchClassDescription})
+        if (data) {
+            console.log(data)
+            const { data: newData, error} = await supabase
+                .from("class_duplicate")     
+                .update({class_name: editClassName, class_description: editClassDescription})
+                .eq("created_by", user_id)
+                .eq("class_name", matchClassName)
+                .eq("class_description", matchClassDescription)
+            if (error) {
+                console.log(error)
+            }
+            if (newData) {
+                console.log(newData)
+            }
+       }
+       
+        handleEditClose();
+    }
     async function fetchClasses() {
         const getId = await supabase.auth.getUser()
         const user_id = getId.data.user.id;
@@ -72,7 +124,6 @@ export function CreateOrJoin() {
     }
 
     function navigateToDashboard() {
-        console.log(clickedClass)
         if (clickedClass) {
             navigate("/dashboard", { state: { clickedClass } });
         }
@@ -122,6 +173,7 @@ export function CreateOrJoin() {
                                     bottom: '0rem',
                                     transform: 'translateY(50%)',
                                 }}
+                                onClick={()=> editClass(classItem)}
                             >
                                 <Edit />
                             </IconButton>
@@ -146,6 +198,29 @@ export function CreateOrJoin() {
                         </CardOverflow>
                     </Card>
                 ))}
+                <Dialog open={openEditDialog} onClose={handleEditClose}>
+                <DialogTitle>Edit Class</DialogTitle>
+                <DialogContent sx={{ margin: "10px" }}>
+                    <TextField
+                        label="Class Name"
+                        sx={{ marginTop: "8px" }}
+                        value={editClassName}
+                        onChange={(event) => setEditClassName(event.target.value)}
+                    /><br></br>
+                    <TextField
+                        label="Class Description"
+                        sx={{ marginTop: "8px" }}
+                        value={editClassDescription}
+                        onChange={(event) => setEditClassDescription(event.target.value)}
+                    /><br></br>
+                </DialogContent>
+                <DialogActions>
+                    <Button onClick={handleEditClose} color='warning' variant="contained">Close</Button>
+                    <Button variant="contained" onClick={handleEditSubmit} color="primary">
+                        Submit
+                    </Button>
+                </DialogActions>
+            </Dialog>
             </div>
         );
     }
