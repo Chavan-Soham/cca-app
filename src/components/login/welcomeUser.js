@@ -11,21 +11,32 @@ export function WelcomeUser(){
     async function setUser(){
         const getId = await supabase.auth.getUser();
         const user_id = getId.data.user.id;
-
-        const {error} = await supabase
+        
+        if (getUserName !== null || getUserName !== "") {
+            const {error} = await supabase
             .from('users')
             .insert([
                 {user_name: getUserName, user_id: user_id}
             ])
 
-        if (error) {
-            console.log(error)
+            if (error) {
+                console.log(error)
+            }
         }
+        else{
+            console.log("Cannot be null or empty string.")
+        }  
     }
 
     async function getNameOfUser(){
-        setUser()
-        navigate("/create_or_join")
+        if (getUserName !== null || getNameOfUser !== "") {
+            alert("Name cannot be null or empty string.")
+            console.log("Name cannot be null or empty string.")
+        }
+        else{
+            setUser()
+            navigate("/create_or_join")
+        }
     }
 
     return (
@@ -59,6 +70,7 @@ export function WelcomeUser(){
                     placeholder="Type in here…"
                     variant="soft"
                     color="warning"
+                    required
                 />
             </div>
             <div>

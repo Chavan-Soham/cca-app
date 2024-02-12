@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { useNavigate } from "react-router-dom";
 import supabase from "../../supabaseClient"
 import { Auth } from "@supabase/auth-ui-react";
@@ -7,7 +7,6 @@ import "./login.css"
 
 export default function Login(){
     const navigate = useNavigate()
-    const [userName, setUserName] = useState()
 
     async function IfNameExists(){
         const getId = await supabase.auth.getUser()
@@ -19,6 +18,7 @@ export default function Login(){
             .eq("user_id", user_id)
             if (data && data.length > 0 && data[0].user_name) {
                 // User_name exists, navigate to create_or_join
+                console.log("User name found!")
                 navigate("/create_or_join");
             } else {
                 // User_name doesn't exist, navigate to welcomeUser
@@ -30,6 +30,7 @@ export default function Login(){
     }
     supabase.auth.onAuthStateChange(async(event)=>{
         if (event==="SIGNED_IN") {
+            console.log("successfully signed in")
             IfNameExists()
         }
     })
