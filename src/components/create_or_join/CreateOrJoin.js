@@ -35,6 +35,7 @@ export function CreateOrJoin() {
     const [editClassDescription, setEditClassDescription] = useState('');
     const [matchClassName, setMatchClassName] = useState()
     const [matchClassDescription, setMatchClassDescription] = useState()
+    const [classDetails, setClassDetails] = useState([])
 
     function editClass(classItem){
         setEditClassName(classItem.class_name)
@@ -81,6 +82,8 @@ export function CreateOrJoin() {
        
         handleEditClose();
     }
+
+
     async function fetchClasses() {
         const getId = await supabase.auth.getUser()
         const user_id = getId.data.user.id;
@@ -102,6 +105,7 @@ export function CreateOrJoin() {
         fetchUser();
         fetchUserName();
         fetchClasses();
+        joinedClassId();
     }, [])
 
     async function deleteClass(class_name, index) {
@@ -279,6 +283,95 @@ export function CreateOrJoin() {
             </div>
         );
     }
+    
+    async function joinedClassId(){
+        const getId = await supabase.auth.getUser()
+        const member_id = getId.data.user.id;
+
+        const {data, error} = await supabase
+            .from("class_members_duplicate")
+            .select("classId")
+            .eq("memberId", member_id)
+        if (data) {
+            console.log(data)
+            joinedClass(data)
+        }
+        if (error) {
+            console.log(error)
+        }
+    }
+
+    async function joinedClass(classIds){
+        const newClassDetails = []
+        for (const classId of classIds) {
+            const class_id = classId.classId;
+            const { data, error } = await supabase
+                .from("class_duplicate")
+                .select("class_name, class_description, class_image")
+                .eq("class_id", class_id)
+                .single()
+    
+            if (data) {
+                newClassDetails.push({
+                    className: data.class_name,
+                    classDes: data.class_description,
+                    classImg: data.class_image
+                })
+            }
+            if (error) {
+                console.log(error)
+            }
+            
+            console.log("This is one by one: ", newClassDetails)
+            setClassDetails(newClassDetails)
+        }
+
+    }
+
+        function displayJoinedClass() {
+            const classCards = [];
+        
+            for (let i = 0; i < classDetails.length; i++) {
+                const classItem = classDetails[i];
+                classCards.push(
+                    <Card key={i} id={`card-${i}`} sx={{ width: 320, backgroundColor: "wheat", margin: 2 }}>
+                        <CardOverflow>
+                            <AspectRatio ratio="2">
+                                <img
+                                    src={classItem.classImg}
+                                    loading="lazy"
+                                    alt={classItem.className}
+                                />
+                            </AspectRatio>
+                        </CardOverflow>
+                        <CardContent>
+                            <Typography level="title-md">
+                                <Link overlay underline="none" href="/dashboard" onClick={async () => { setClickedClass(classItem.className); }} {...navigateToDashboard()}>
+                                    {classItem.className}
+                                </Link>
+                            </Typography>
+                            <Typography level="body-sm">
+                                {classItem.classDes}
+                            </Typography>
+                        </CardContent>
+                        <CardOverflow variant="soft">
+                            <Divider inset="context" />
+                            <CardContent orientation="horizontal">
+                                <Typography level="body-xs">6.3K views</Typography>
+                                <Divider orientation="vertical" />
+                                <Typography level="body-xs">1 hour ago</Typography>
+                            </CardContent>
+                        </CardOverflow>
+                    </Card>
+                );
+            }
+        
+            return (
+                <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', flexWrap: 'wrap' }}>
+                    {classCards}
+                </div>
+            );
+        }
 
     return (
         <div>
@@ -289,6 +382,8 @@ export function CreateOrJoin() {
             <h1>{userName} your created classes</h1>
             {displayClass()}
             <br />
+            <h1>{userName} your joined classes</h1>
+            {displayJoinedClass()}
             <OpenIconSpeedDial />
         </div>
     );
