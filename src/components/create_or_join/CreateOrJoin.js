@@ -106,7 +106,7 @@ export function CreateOrJoin() {
         fetchUserName();
         fetchClasses();
         joinedClassId();
-    }, [])
+    }, []) 
 
     async function deleteClass(class_name, index) {
         const getId = await supabase.auth.getUser()
