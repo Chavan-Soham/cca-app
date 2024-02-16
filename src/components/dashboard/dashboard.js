@@ -1,5 +1,4 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { Navbar } from "./dashNavbar";
 import supabase from "../../supabaseClient"
 import { useEffect, useState } from "react";
 import * as React from 'react';
@@ -25,6 +24,7 @@ import PostsIcon from '@mui/icons-material/Description';
 import AssignmentsIcon from '@mui/icons-material/Assignment';
 import TodosIcon from '@mui/icons-material/Checklist';
 import AboutIcon from '@mui/icons-material/Info';
+import { People } from "./people";
 
 
 export function ClassDashboard() {
@@ -32,6 +32,9 @@ export function ClassDashboard() {
     const [anchorEl, setAnchorEl] = useState(null);
     const [drawerOpen, setDrawerOpen] = useState(false);
     const [drawerData, setDrawerData] = useState();
+    const [class_id, setClassId] = useState()
+    const [getClassName, setClassName] = useState()
+    const location = useLocation()
 
     const handleDrawerClick = (drawerString) => {
         setDrawerData(drawerString)
@@ -57,15 +60,16 @@ export function ClassDashboard() {
         { text: 'Todos', icon: <TodosIcon />, onClick: () => handleDrawerClick('Todos') },
         { text: 'About', icon: <AboutIcon />, onClick: () => handleDrawerClick('About') },
     ];
+
+    useEffect(()=>{
+        getClassId()
+    },[])
     
-    const [class_id, setClassId] = useState()
-    const [getClassName, setClassName] = useState()
-    const location = useLocation()
 
     function displayDrawerData(){
         switch (drawerData) {
             case 'People':
-                return <h1>People</h1>
+                return <People classId={class_id}/>
             case 'Announcements':
                 return <h1>Announcement</h1>
             default:
@@ -73,6 +77,29 @@ export function ClassDashboard() {
         }
     }
 
+    async function getClassId(){
+        const {data, error} = await supabase
+            .from('class_duplicate')
+            .select('created_by')
+            .eq('class_name', location.state.clickedClass)
+        if (data) {
+            const {data:classIdData, error: e} = await supabase
+                .from("class_duplicate")
+                .select("class_id")
+                .eq("created_by", data[0].created_by)
+                .eq("class_name", location.state.clickedClass)
+            if (classIdData) {
+                setClassId(classIdData[0].class_id)
+            }
+            if (e) {
+                console.log(e)
+            }
+        }
+        if (error) {
+            console.log(error)
+        }
+    }
+    
     function className(){
         const getClassName = location.state.clickedClass;
         return(
@@ -168,6 +195,7 @@ export function ClassDashboard() {
             <div>
                 {displayDrawerData()}
             </div>
+            
         </div>
     );
 }
