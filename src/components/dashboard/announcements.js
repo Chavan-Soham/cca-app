@@ -16,7 +16,6 @@ export function Announcements({ classId }) {
         checkUserIsCreator();
         fetchAnnouncements();
         subscribeToChanges();
-        
     }, []);
 
     async function checkUserIsCreator() {
@@ -45,8 +44,8 @@ export function Announcements({ classId }) {
             const { error } = await supabase
                 .from("announcements_duplicate")
                 .insert([
-                    {created_by: user_id, class_id: classId, content: announcements, created_at: new Date().toISOString()}
-                ]) 
+                    { created_by: user_id, class_id: classId, content: announcements, created_at: new Date().toISOString() }
+                ])
             if (error) {
                 console.log(error)
             }
@@ -55,9 +54,9 @@ export function Announcements({ classId }) {
         }
     }
 
-    async function fetchAnnouncements(){
+    async function fetchAnnouncements() {
         try {
-            const {data, error} = await supabase
+            const { data, error } = await supabase
                 .from("announcements_duplicate")
                 .select("content")
                 .eq("class_id", classId)
@@ -73,21 +72,23 @@ export function Announcements({ classId }) {
         } catch (error) {
             console.log(error)
         }
+        
     }
 
     async function subscribeToChanges() {
         try {
-            const { data: changes, error } = await supabase
-                .from("announcements_duplicate")
-                .on('*', payload => {
-                    console.log(payload)
-                    fetchAnnouncements(); // Update announcements on any change
-                })
-                .subscribe();
-            console.log(changes)
-            if (error) {
-                console.error("Error subscribing to changes:", error.message);
-            }
+
+            const channels = supabase.channel('custom-all-channel')
+                .on(
+                    'postgres_changes',
+                    { event: '*', schema: 'public', table: 'announcements_duplicate' },
+                    (payload) => {
+                        console.log('Change received!', payload)
+                        fetchAnnouncements()
+                    }
+                )
+                .subscribe()
+            console.log(channels)
         } catch (error) {
             console.error("Error subscribing to changes:", error.message);
         }
@@ -102,7 +103,7 @@ export function Announcements({ classId }) {
                         placeholder="Announce here..."
                         variant="soft"
                         value={announcements}
-                        onChange={(event)=> setAnnouncements(event.target.value)}
+                        onChange={(event) => setAnnouncements(event.target.value)}
                         sx={{
                             borderBottom: '2px solid',
                             borderColor: 'neutral.outlinedBorder',
@@ -142,7 +143,7 @@ export function Announcements({ classId }) {
                     </Box>
                     {showAnnouncement.map((announcement, index) => (
                         <Card key={index}>
-                            <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg"/><Typography level="title-lg">Xabi Alonso</Typography>
+                            <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" /><Typography level="title-lg">Xabi Alonso</Typography>
                             <Typography level="title-md">{announcement.content}</Typography>
                         </Card>
                     ))}
@@ -151,7 +152,7 @@ export function Announcements({ classId }) {
 
             {!userIsCreator && (
                 <Card>
-                    <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg"/>
+                    <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" />
                     <Typography level="title-lg">Announcement Title</Typography>
                     <Typography level="title-md">Announcement Content</Typography>
                 </Card>
