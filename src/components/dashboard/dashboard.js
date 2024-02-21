@@ -25,6 +25,7 @@ import AssignmentsIcon from '@mui/icons-material/Assignment';
 import TodosIcon from '@mui/icons-material/Checklist';
 import AboutIcon from '@mui/icons-material/Info';
 import { People } from "./people";
+import { Announcements } from "./announcements";
 
 
 export function ClassDashboard() {
@@ -71,7 +72,7 @@ export function ClassDashboard() {
             case 'People':
                 return <People classId={class_id}/>
             case 'Announcements':
-                return <h1>Announcement</h1>
+                return <Announcements classId={class_id}/>
             default:
                 break;
         }

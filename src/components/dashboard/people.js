@@ -12,7 +12,7 @@ import Divider from '@mui/joy/Divider';
 import Chip from '@mui/joy/Chip';
 import Button from "@mui/joy/Button"
 import $ from "jquery"
-/* import "./people.css" */
+
 
 
 
