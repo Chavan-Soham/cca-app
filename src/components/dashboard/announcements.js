@@ -6,6 +6,8 @@ import Box from '@mui/joy/Box';
 import Button from '@mui/joy/Button';
 import { Avatar, Card, Typography } from "@mui/joy";
 
+
+
 export function Announcements({ classId }) {
     const [userIsCreator, setUserIsCreator] = useState(false);
     const [announcements, setAnnouncements] = useState([])
@@ -49,17 +51,14 @@ export function Announcements({ classId }) {
             if (error) {
                 console.log(error)
             }
+            else{
+                setAnnouncements('')
+            }
         } catch (error) {
             console.log(error)
         }
     }
 
-    const scrollToMain = () => {
-        window.scrollTo({
-            top: document.body.scrollHeight,
-            behavior: 'smooth',
-        });
-    };
 
     async function fetchAnnouncements() {
         try {
@@ -69,8 +68,6 @@ export function Announcements({ classId }) {
                 .eq("class_id", classId)
             if (data) {
                 setFetchAnnouncement(data)
-                scrollToLatestAnnouncement();
-                scrollToMain();
             }
             if (error) {
                 console.log(error)
@@ -78,8 +75,9 @@ export function Announcements({ classId }) {
         } catch (error) {
             console.log(error)
         }
-        
+
     }
+
 
     async function subscribeToChanges() {
         try {
@@ -99,12 +97,6 @@ export function Announcements({ classId }) {
             console.error("Error subscribing to changes:", error.message);
         }
     }
-
-    const scrollToLatestAnnouncement = () => {
-        if (announcementsRef.current) {
-            announcementsRef.current.scrollTop = announcementsRef.current.scrollHeight;
-        }
-    };
 
     return (
         <div>
@@ -153,14 +145,15 @@ export function Announcements({ classId }) {
                     >
                         <Button variant="solid" color="primary" onClick={handleAnnouncementSend} sx={{ ml: 'auto' }}>Send</Button>
                     </Box>
-                    <div ref={announcementsRef} style={{ paddingTop: '50px', maxHeight: '80vh', overflowY: 'auto' }}>
-                    {showAnnouncement.map((announcement, index) => (
-                        <Card key={index}>
-                            <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" /><Typography level="title-lg">Xabi Alonso</Typography>
-                            <Typography level="title-md">{announcement.content}</Typography>
-                        </Card>
-                    ))}
+                    <div ref={announcementsRef} style={{ paddingTop: '30px', maxHeight: '80vh', overflowY: 'auto' }}>
+                        {showAnnouncement.slice(0).reverse().map((announcement, index) => (
+                            <Card key={index} style={{ marginBottom: '10px' }}>
+                                <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" /><Typography level="title-lg">Xabi Alonso</Typography>
+                                <Typography level="title-md">{announcement.content}</Typography>
+                            </Card>
+                        ))}
                     </div>
+
                 </div>
             )}
 
