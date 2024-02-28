@@ -158,11 +158,14 @@ export function Announcements({ classId }) {
             )}
 
             {!userIsCreator && (
-                <Card>
-                    <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" />
-                    <Typography level="title-lg">Announcement Title</Typography>
-                    <Typography level="title-md">Announcement Content</Typography>
-                </Card>
+                <div ref={announcementsRef} style={{ paddingTop: '30px', maxHeight: '80vh', overflowY: 'auto' }}>
+                {showAnnouncement.slice(0).reverse().map((announcement, index) => (
+                    <Card key={index} style={{ marginBottom: '10px' }}>
+                        <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" /><Typography level="title-lg">Xabi Alonso</Typography>
+                        <Typography level="title-md">{announcement.content}</Typography>
+                    </Card>
+                ))}
+            </div>
             )}
         </div>
     );

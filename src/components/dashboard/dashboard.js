@@ -24,8 +24,10 @@ import PostsIcon from '@mui/icons-material/Description';
 import AssignmentsIcon from '@mui/icons-material/Assignment';
 import TodosIcon from '@mui/icons-material/Checklist';
 import AboutIcon from '@mui/icons-material/Info';
+import Chat from '@mui/icons-material/Chat';
 import { People } from "./people";
 import { Announcements } from "./announcements";
+import { GroupForum } from "./groupForum";
 
 
 export function ClassDashboard() {
@@ -59,6 +61,7 @@ export function ClassDashboard() {
         { text: 'Posts', icon: <PostsIcon />, onClick: () => handleDrawerClick('Posts') },
         { text: 'Assignments', icon: <AssignmentsIcon />, onClick: () => handleDrawerClick('Assignments') },
         { text: 'Todos', icon: <TodosIcon />, onClick: () => handleDrawerClick('Todos') },
+        { text: 'Group Forum', icon: <Chat/>, onClick: ()=> handleDrawerClick('Group Forum')},
         { text: 'About', icon: <AboutIcon />, onClick: () => handleDrawerClick('About') },
     ];
 
@@ -73,6 +76,8 @@ export function ClassDashboard() {
                 return <People classId={class_id}/>
             case 'Announcements':
                 return <Announcements classId={class_id}/>
+            case 'Group Forum':
+                return <GroupForum classId={class_id}/>
             default:
                 break;
         }
