@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import AppBar from '@mui/material/AppBar';
 import Box from '@mui/material/Box';
 import Toolbar from '@mui/material/Toolbar';
@@ -18,6 +18,11 @@ import { useNavigate } from "react-router-dom";
 export function Navbar(){
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [profPic, setProfPic] = useState()
+
+  useEffect(()=>{
+    userProfPic()
+  },[])
 
   const handleClick = (event) => {
     setAnchorEl(event.currentTarget);
@@ -36,8 +41,23 @@ export function Navbar(){
 
   function logout(){
     signOut()
-    navigate("/")
   }
+
+  async function userProfPic(){
+    const getId = await supabase.auth.getUser()
+    const user_id = getId.data.user.id;
+
+    const {data, error} = await supabase
+        .from("users")
+        .select("user_profile_img")
+        .eq("user_id", user_id)
+    if (data) {
+        setProfPic(data[0].user_profile_img)
+    }
+    if (error) {
+        console.log(error)
+    }
+}
 
   return (
     <AppBar position="static">
@@ -63,7 +83,7 @@ export function Navbar(){
               onClick={handleClick}
               sx={{ mr: 2 }}
             >
-              <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
+              <Avatar sx={{ width: '49px', height: '49px' }} src={profPic}></Avatar>
             </IconButton>
           </Tooltip>
           <Menu
@@ -81,11 +101,11 @@ export function Navbar(){
             open={Boolean(anchorEl)}
             onClose={handleClose}
           >
-            <MenuItem onClick={handleClose}>
+            <MenuItem onClick={()=> {handleClose(); navigate("/profileImage")}}>
               <Typography textAlign="center">Update Profile Pic</Typography>
             </MenuItem>
-            <MenuItem onClick={handleClose}>
-              <Typography textAlign="center" onClick={logout}>Logout</Typography>
+            <MenuItem onClick={()=> { handleClose(); logout(); navigate("/"); }}>
+              <Typography textAlign="center">Logout</Typography>
             </MenuItem>
           </Menu>
         </Toolbar>

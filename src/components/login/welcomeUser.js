@@ -29,7 +29,7 @@ export function WelcomeUser(){
     }
 
     async function getNameOfUser(){
-        if (getUserName !== null || getNameOfUser !== "") {
+        if (getUserName === null || getNameOfUser === "") {
             alert("Name cannot be null or empty string.")
             console.log("Name cannot be null or empty string.")
         }

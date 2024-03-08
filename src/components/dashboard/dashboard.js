@@ -38,6 +38,7 @@ export function ClassDashboard() {
     const [class_id, setClassId] = useState()
     const [getClassName, setClassName] = useState()
     const location = useLocation()
+    const [profPic, setProfPic] = useState()
 
     const handleDrawerClick = (drawerString) => {
         setDrawerData(drawerString)
@@ -67,9 +68,24 @@ export function ClassDashboard() {
 
     useEffect(()=>{
         getClassId()
+        userProfPic()
     },[])
     
+    async function userProfPic(){
+        const getId = await supabase.auth.getUser()
+        const user_id = getId.data.user.id;
 
+        const {data, error} = await supabase
+            .from("users")
+            .select("user_profile_img")
+            .eq("user_id", user_id)
+        if (data) {
+            setProfPic(data[0].user_profile_img)
+        }
+        if (error) {
+            console.log(error)
+        }
+    }
     function displayDrawerData(){
         switch (drawerData) {
             case 'People':
@@ -84,6 +100,7 @@ export function ClassDashboard() {
     }
 
     async function getClassId(){
+        
         const {data, error} = await supabase
             .from('class_duplicate')
             .select('created_by')
@@ -107,6 +124,7 @@ export function ClassDashboard() {
     }
     
     function className(){
+        
         const getClassName = location.state.clickedClass;
         return(
             <div>
@@ -115,6 +133,17 @@ export function ClassDashboard() {
         );
     }
 
+    async function signOut(){
+        const {error} = await supabase.auth.signOut()
+        if (error) {
+            console.log(error)
+        }
+    }
+
+    function logout(){
+        signOut()
+    }
+    
     function navbar() {
         return (
             <Box sx={{ flexGrow: 1 }}>
@@ -146,7 +175,7 @@ export function ClassDashboard() {
                                 onClick={handleClick}
                                 sx={{ mr: 2 }}
                             >
-                                <Avatar sx={{ width: 32, height: 32 }}>A</Avatar>
+                                <Avatar sx={{ width: '50px', height: '50px' }} src={profPic}></Avatar>
                             </IconButton>
                         </Tooltip>
 
@@ -166,10 +195,10 @@ export function ClassDashboard() {
                             open={Boolean(anchorEl)}
                             onClose={handleClose}
                         >
-                            <MenuItem onClick={handleClose}>
+                            <MenuItem onClick={()=> {handleClose(); navigate("/profileImage")}}>
                                 <Typography textAlign="center">Update Profile Pic</Typography>
                             </MenuItem>
-                            <MenuItem onClick={handleClose}>
+                            <MenuItem onClick={()=> { handleClose(); logout(); navigate("/"); }}>
                                 <Typography textAlign="center">Logout</Typography>
                             </MenuItem>
                         </Menu>
