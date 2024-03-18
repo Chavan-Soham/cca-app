@@ -28,6 +28,7 @@ import Chat from '@mui/icons-material/Chat';
 import { People } from "./people";
 import { Announcements } from "./announcements";
 import { GroupForum } from "./groupForum";
+import About from "./about";
 
 
 export function ClassDashboard() {
@@ -94,6 +95,8 @@ export function ClassDashboard() {
                 return <Announcements classId={class_id}/>
             case 'Group Forum':
                 return <GroupForum classId={class_id}/>
+            case 'About':
+                return <About classId={class_id}/>
             default:
                 break;
         }
