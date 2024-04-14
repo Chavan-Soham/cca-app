@@ -83,7 +83,7 @@ export function Navbar(){
               onClick={handleClick}
               sx={{ mr: 2 }}
             >
-              <Avatar sx={{ width: '49px', height: '49px' }} src={profPic}></Avatar>
+              <Avatar sx={{ width: '48px', height: '48px' }} src={profPic}></Avatar>
             </IconButton>
           </Tooltip>
           <Menu

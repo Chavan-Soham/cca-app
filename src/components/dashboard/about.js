@@ -1,5 +1,7 @@
 import React, { useState } from "react";
 import supabase from "../../supabaseClient";
+import { Typography } from "@mui/material"
+import { Link } from "react-router-dom";
 
 
 export default function About({classId}){
@@ -8,6 +10,7 @@ export default function About({classId}){
     const [classImage, setClassImage] = useState('')
     const [noOfMember, setNoOfMember] = useState([])
     const [teacherName, setTeacherName] = useState('')
+    
 
     
     async function classDetails(){
@@ -47,8 +50,21 @@ export default function About({classId}){
     
     return(
         <div>
+            <center>
             <h1>{className}</h1>
-            <div style={{backgroundImage: `url('${classImage}')`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain',width: '570px', height: '440px'}}></div>
+            <Link to={`${classImage}`}>
+                <div style={{backgroundImage: `url('${classImage}')`, backgroundRepeat: 'no-repeat', backgroundSize: 'contain',width: '600px', height: '380px'}}></div>
+            </Link>
+            <div>
+                <h3>{classBio}</h3>
+            </div>
+            <div>
+                <h4>Teacher: {teacherName}</h4>
+            </div>
+            <div>
+                <Typography>Number of members: {noOfMember.toString()}</Typography>
+            </div>
+            </center>
         </div>
     );
 }

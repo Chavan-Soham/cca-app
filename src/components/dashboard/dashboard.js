@@ -178,7 +178,7 @@ export function ClassDashboard() {
                                 onClick={handleClick}
                                 sx={{ mr: 2 }}
                             >
-                                <Avatar sx={{ width: '50px', height: '50px' }} src={profPic}></Avatar>
+                                <Avatar sx={{ width: '49px', height: '49px' }} src={profPic}></Avatar>
                             </IconButton>
                         </Tooltip>
 
