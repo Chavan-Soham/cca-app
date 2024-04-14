@@ -29,6 +29,7 @@ import { People } from "./people";
 import { Announcements } from "./announcements";
 import { GroupForum } from "./groupForum";
 import About from "./about";
+import { Posts } from "./posts";
 
 
 export function ClassDashboard() {
@@ -97,6 +98,8 @@ export function ClassDashboard() {
                 return <GroupForum classId={class_id}/>
             case 'About':
                 return <About classId={class_id}/>
+            case 'Posts':
+                return <Posts classId={class_id}/>
             default:
                 break;
         }

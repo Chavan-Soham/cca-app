@@ -71,6 +71,7 @@ export function GroupForum({ classId }) {
         if (error) {
             console.log(error);
         }
+        setSend('')
     }
 
     async function retrieveMessages() {
@@ -92,6 +93,22 @@ export function GroupForum({ classId }) {
 
     useEffect(() => {
         retrieveMessages();
+        const channels = supabase.channel('custom-all-channel')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'messages_duplicate' },
+                (payload) => {
+                    // Fetch updated messages when a change is received
+                    console.log(payload)
+                    retrieveMessages();
+                }
+            )
+            .subscribe();
+
+        return () => {
+            // Unsubscribe when component unmounts
+            channels.unsubscribe();
+        };
     }, []);
 
     return (
