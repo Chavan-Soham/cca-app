@@ -30,6 +30,7 @@ import { Announcements } from "./announcements";
 import { GroupForum } from "./groupForum";
 import About from "./about";
 import { Posts } from "./posts";
+import { Assignments } from "./assignments";
 
 
 export function ClassDashboard() {
@@ -100,6 +101,8 @@ export function ClassDashboard() {
                 return <About classId={class_id}/>
             case 'Posts':
                 return <Posts classId={class_id}/>
+            case 'Assignments':
+                return <Assignments classId={class_id}/>
             default:
                 break;
         }
