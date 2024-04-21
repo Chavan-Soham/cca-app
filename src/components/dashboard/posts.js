@@ -19,6 +19,7 @@ export function Posts({ classId }) {
   const [userProPic, setUserProfPic] = useState();
   const [userName, setUserName] = useState();
   const [anchorEl, setAnchorEl] = useState(null);
+  const [teacherId, setTeacherId] = useState()
 
   const handleToggleMenu = (event) => {
     setAnchorEl(anchorEl ? null : event.currentTarget);
@@ -44,6 +45,9 @@ export function Posts({ classId }) {
 
     if (data && data.length > 0 && data[0].created_by === user_id) {
       setUserAsTeacher(true);
+    }
+    if (data) {
+      setTeacherId(data[0].created_by)
     }
     if (error) {
       console.log(error);
@@ -189,13 +193,11 @@ export function Posts({ classId }) {
   }
 
   async function retrieveUserPicName() {
-    const getId = await supabase.auth.getUser()
-    const user_id = getId.data.user.id
 
     const { data, error } = await supabase
       .from("users")
       .select("user_name, user_profile_img")
-      .eq("user_id", user_id)
+      .eq("user_id", teacherId)
 
     if (data) {
       setUserProfPic(data[0].user_profile_img)
@@ -282,7 +284,7 @@ export function Posts({ classId }) {
     return () => {
       channels.unsubscribe();
     };
-  }, [])
+  }, [teacherId])
 
   return (
     <div>
@@ -340,8 +342,8 @@ export function Posts({ classId }) {
       )}
 
       {retrievedPosts && retrievedPosts.map((post, index) => (
-
-        <Card key={post.title} sx={{ marginBottom: 2, width: { xs: '85%', md: '80%', lg: '50%' }, height: { xs: 'auto', md: 'auto', lg: '80%' }, margin: 'auto', backgroundColor: "antiquewhite" }}>
+        <div style={{ marginTop: "25px"}}>
+        <Card key={post.title} sx={{ width: { xs: '85%', md: '80%', lg: '50%' }, height: { xs: 'auto', md: 'auto', lg: '80%' }, margin: 'auto', backgroundColor: "antiquewhite" }}>
           <CardHeader
             avatar={<Avatar src={`${userProPic}`} />}
             title={`${userName}`} // Replace "Username" with the actual username
@@ -401,6 +403,7 @@ export function Posts({ classId }) {
             <Button sx={{ marginLeft: 2 }} variant="solid" onClick={() => handleDownloadDoc(post.pdf_link, post.doc_path)}><Download />Download Attachment</Button>
           </CardActions>
         </Card>
+        </div>
       ))}
     </div>
   );

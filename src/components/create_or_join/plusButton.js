@@ -14,7 +14,6 @@ import supabase from "../../supabaseClient"
 
 export default function OpenIconSpeedDial() {
   const [open, setOpen] = useState(false)
-  const [teacherName, setTeacherName] = useState('')
   const [className, setClassName] = useState('')
   const [password, setPassword] = useState('')
   const [description, setDescription] = useState('')
@@ -109,7 +108,6 @@ export default function OpenIconSpeedDial() {
 
   const handleClose = () => {
     setOpen(false)
-    setTeacherName('')
     setClassName('')
     setDescription('')
     setPassword('')
@@ -154,7 +152,7 @@ export default function OpenIconSpeedDial() {
       const { error } = await supabase
         .from('class_duplicate')
         .insert([
-          { teacher_name: teacherName, created_at: new Date().toISOString(), class_name: className, password: password, class_description: description, created_by: user_id, class_image: publicUrl }
+          { created_at: new Date().toISOString(), class_name: className, password: password, class_description: description, created_by: user_id, class_image: publicUrl }
         ])
       if (error) {
         console.log(error)
@@ -196,12 +194,6 @@ export default function OpenIconSpeedDial() {
         <DialogTitle>Create Class</DialogTitle>
         <DialogContent sx={{ margin: "10px" }}>
           <TextField
-            label="Teacher Name"
-            sx={{ marginTop: "8px" }}
-            value={teacherName}
-            onChange={(event) => setTeacherName(event.target.value)}
-          /><br></br>
-          <TextField
             label="Class Name"
             sx={{ marginTop: "8px" }}
             value={className}
@@ -214,7 +206,7 @@ export default function OpenIconSpeedDial() {
             onChange={(event) => setDescription(event.target.value)}
           /><br></br>
           <TextField
-            sx={{ marginTop: "8px" }}
+            sx={{ marginTop: "8px", height: "auto" }}
             type='file'
             onChange={handleFileChange}
           /><br></br>

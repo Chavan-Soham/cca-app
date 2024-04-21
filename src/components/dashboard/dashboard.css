@@ -1,0 +1,58 @@
+@import url(https://fonts.googleapis.com/css?family=EB+Garamond|Droid+Serif|Playfair+Display|Open+Sans+Condensed:300);
+
+.box-shadow {
+    margin-top: 30px;
+    width: 90%; /* Adjust the width of the box */
+    max-width: 800px; /* Set a maximum width */
+    margin-left: auto; /* Center the box horizontally */
+    margin-right: auto; /* Center the box horizontally */
+    height: auto; /* Allow height to adjust based on content */
+    background-color: rgba(255, 255, 255, 1);
+    color: #1A222F; /* Change text color */
+    border-radius: 10px;
+    box-shadow: 0px 5px 15px 0px rgba(0,0,0,0.1); /* Soften the box shadow */
+    padding: 20px; /* Add padding for the quote */
+    background: #F4FFF3;
+}
+
+.quote {
+    font-family: 'EB Garamond';
+    font-size: 27px; /* Reduce the font size of the quote */
+    line-height: 1.4em;
+    padding: 10px; /* Adjust padding */
+    text-rendering: optimizeLegibility;
+    -moz-osx-font-smoothing: auto;
+    -webkit-font-smoothing: antialiased;
+    font-smoothing: antialiased;
+    font-kerning: normal;
+}
+
+.quote--container {
+    margin: 4.5rem auto 0;
+    border-bottom: 2px dotted #C6D1BF;
+    padding-bottom: .5rem;
+}
+
+.quote--author {
+    font-family: 'Open Sans Condensed';
+    font-size: 22px;
+    text-align: right;
+    font-weight: 300;
+}
+
+/* Responsive CSS */
+@media only screen and (max-width: 600px) {
+    .box-shadow {
+        width: 95%; /* Adjust the width of the box for smaller screens */
+        max-width: 80%; /* Remove maximum width for smaller screens */
+        padding: 15px; /* Adjust padding for smaller screens */
+    }
+
+    .quote {
+        font-size: 22px; /* Adjust font size for smaller screens */
+    }
+
+    .quote--author {
+        font-size: 18px; /* Adjust font size for smaller screens */
+    }
+}

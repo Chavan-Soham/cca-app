@@ -15,6 +15,8 @@ import { useState } from "react";
 import supabase from "../../supabaseClient"
 import { useNavigate } from "react-router-dom";
 
+const cca = require("./Cca.png")
+
 export function Navbar(){
   const navigate = useNavigate();
   const [anchorEl, setAnchorEl] = useState(null);
@@ -65,12 +67,12 @@ export function Navbar(){
         <Toolbar>
           <Avatar
             alt="My App"
-            src="https://images8.alphacoders.com/133/1337140.png"
+            src={cca}
             onClick={()=>navigate("/create_or_join")}
             sx={{ mr: 2 }}
           />
           <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-            My App
+            CCA
           </Typography>
           <Tooltip title="Account settings">
             <IconButton

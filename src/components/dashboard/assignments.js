@@ -1,207 +1,328 @@
 import React, { useEffect, useState } from "react";
 import supabase from "../../supabaseClient";
-import { Card, CardContent, CardActions, Button, Typography, TextField, Avatar } from "@mui/material";
-import { PictureAsPdf } from "@mui/icons-material";
+import {
+  Card,
+  CardContent,
+  CardActions,
+  Button,
+  Typography,
+  TextField,
+  Avatar,
+} from "@mui/material";
+import { Notifications, PictureAsPdf } from "@mui/icons-material";
 
 export function Assignments({ classId }) {
-    const [userTeacher, setTeacher] = useState(false);
-    const [assignmentName, setAssignmentName] = useState("");
-    const [topic, setTopic] = useState("");
-    const [docFile, setDocFile] = useState();
-    const [studId, setStudId] = useState([]);
-    const [studName, setStudName] = useState([]);
-    const [studPic, setStudPic] = useState([]);
+  const [userTeacher, setTeacher] = useState(false);
+  const [assignmentName, setAssignmentName] = useState("");
+  const [assignments, setAssignments] = useState([]); // List of all assignments
+  const [docFile, setDocFile] = useState(null);
+  const [submissions, setSubmissions] = useState([]);
 
-    async function userIsTeacher() {
-        const getId = await supabase.auth.getUser();
-        const user_id = getId.data.user.id;
+  useEffect(() => {
+    fetchAssignments();
+    fetchSubmissions(); 
+    checkIfTeacher();
+  }, []);
 
-        const getData = await supabase
-            .from("class_duplicate")
-            .select("created_by")
-            .eq("class_id", classId);
+  // Fetch assignment submissions
+  async function fetchSubmissions() {
+    try {
+      const { data: assignments, error: assignmentsError } = await supabase
+        .from("assignments_duplicate")
+        .select("assignId")
+        .eq("class_id", classId);
 
-        if (user_id === getData.data[0].created_by) {
-            setTeacher(true);
-        } else {
-            setTeacher(false);
-        }
+      if (assignmentsError) {
+        console.error("Error fetching assignments:", assignmentsError);
+        return;
+      }
+
+      const { data: submissionsData, error: submissionsError } = await supabase
+        .from("assignment_submit_duplicate")
+        .select("assignId, file_link, submited_by, file_path")
+        .in("assignId", assignments.map((a) => a.assignId));
+
+      if (submissionsError) {
+        console.error("Error fetching submissions:", submissionsError);
+        return;
+      }
+
+      // Fetch user details for each submission
+      const userIds = submissionsData.map((s) => s.submited_by);
+
+      const { data: usersData, error: usersError } = await supabase
+        .from("users")
+        .select("user_id, user_profile_img, user_name")
+        .in("user_id", userIds);
+
+      if (usersError) {
+        console.error("Error fetching user data:", usersError);
+        return;
+      }
+
+      // Combine submissions with user details
+      const combinedSubmissions = submissionsData.map((s) => {
+        const user = usersData.find((u) => u.user_id === s.submited_by);
+        return { ...s,
+            user_profile_img: user.user_profile_img,
+            user_name: user.user_name,
+        };
+      });
+
+      setSubmissions(combinedSubmissions);
+    } catch (error) {
+      console.error("Error during fetching submissions:", error);
+    }
+  }
+  
+  // Check if the current user is a teacher
+  async function checkIfTeacher() {
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    const userId = userData?.user?.id;
+
+    const { data, error } = await supabase
+      .from("class_duplicate")
+      .select("created_by")
+      .eq("class_id", classId);
+
+    if (data && userId === data[0].created_by) {
+      setTeacher(true);
+    } else {
+      setTeacher(false);
     }
 
-    // Function to handle assignment submission by students
-    const handleAssignmentSubmit = async () => {
-        const { error } = await supabase
-            .from("assignments_duplicate")
-            .insert([
-                { topic: assignmentName, class_id: classId }
-            ])
-            .select();
-        if (error) {
-            console.log(error);
-        }
-    };
-
-    async function fetchCreatedAssignments() {
-        const { data, error } = await supabase
-            .from("assignments_duplicate")
-            .select("topic")
-            .eq("class_id", classId);
-        if (data) {
-            setTopic(data[0].topic);
-        }
-        if (error) {
-            console.log(error);
-        }
+    if (error || userError) {
+      console.error("Error checking if user is teacher:", error || userError);
     }
+  }
 
-    // Function to handle assignment name input change
-    const handleAssignmentNameChange = (e) => {
-        setAssignmentName(e.target.value);
-    };
+  // Fetch all assignments for the given class ID
+  async function fetchAssignments() {
+    try {
+      const { data, error } = await supabase
+        .from("assignments_duplicate")
+        .select("assignId, topic")
+        .eq("class_id", classId);
 
-    async function getAssignId() {
-        const data = await supabase.from("assignments_duplicate").select("assignId").eq("class_id", classId);
-        return data.data[0].assignId;
+      if (data) {
+        setAssignments(data); // Store all assignments in the state
+      }
+
+      if (error) {
+        console.error("Error fetching assignments:", error);
+      }
+    } catch (error) {
+      console.error("Error during fetching assignments:", error);
     }
+  }
 
-    async function uploadFile() {
-        if (docFile) {
-            const doc = await supabase.storage
-                .from("students-assignments")
-                .upload(`files/${docFile.name}`, docFile, { public: true });
+  const handleAssignmentNameChange = (e) => {
+    setAssignmentName(e.target.value);
+  };
 
-            const getUrl = supabase.storage.from("students-assignments").getPublicUrl(doc.data.path);
+  // Submit a new assignment
+  async function handleAssignmentSubmit() {
+    try {
+      const { data, error } = await supabase
+        .from("assignments_duplicate")
+        .insert([{ topic: assignmentName, class_id: classId }])
+        .select();
 
-            const assignId = await getAssignId();
+      if (data) {
+        setAssignments((prevAssignments) => [...prevAssignments, data[0]]);
+      }
 
-            const getId = await supabase.auth.getUser();
-            const user_id = getId.data.user.id;
-
-            const { e } = await supabase.from("assignment_submit_duplicate")
-                .insert([
-                    { assignId: assignId, submited_by: user_id, file_link: getUrl.data.publicUrl, file_path: doc.data.path }
-                ]);
-            if (e) {
-                console.log(e);
-            }
-
-        }
+      if (error) {
+        console.error("Error creating assignment:", error);
+      }
+    } catch (error) {
+      console.error("Error during assignment submission:", error);
     }
+  }
 
-    const handleFileSelect = (e) => {
-        const file = e.target.files[0];
-        setDocFile(file);
-    };
+  // Upload a file to a specific assignment
+  async function uploadFile(topic) {
+    try {
+      const assignment = assignments.find((a) => a.topic === topic); // Find the correct assignment by topic
+      if (!assignment) {
+        console.error("Assignment not found");
+        return;
+      }
 
-    async function getStudentId() {
-        const assignId = await getAssignId();
+      const assignId = assignment.assignId; // Get the assignId for the correct assignment
 
-        const { data, error } = await supabase
+      if (docFile) {
+        const uploadPath = `files/${docFile.name}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("students-assignments")
+          .upload(uploadPath, docFile, { public: true });
+
+        if (uploadData) {
+          const publicUrl = supabase.storage.from("students-assignments").getPublicUrl(uploadData.path);
+
+          const { data: userData } = await supabase.auth.getUser();
+          const userId = userData.user.id
+
+          const { error: insertError } = await supabase
             .from("assignment_submit_duplicate")
-            .select("submited_by")
-            .eq("assignId", assignId);
-        if (data) {
-            const submittedByArray = data.map(submission => submission.submited_by);
-            setStudId(submittedByArray);
+            .insert([
+              {
+                assignId: assignId,
+                submited_by: userId,
+                file_link: publicUrl.data.publicUrl,
+                file_path: uploadData.path,
+              },
+            ]);
+
+          if (insertError) {
+            console.error("Error inserting assignment submission:", insertError);
+          } else {
+            console.log("File uploaded successfully");
+          }
         }
-        if (error) {
-            console.log("No one has submitted");
+
+        if (uploadError) {
+          console.error("Error uploading file:", uploadError);
         }
+      }
+    } catch (error) {
+      console.error("Error during file upload:", error);
     }
+  }
 
-    async function getStudentDetails() {
-        const studentDetailsPromises = studId.map(async studId => {
-            const { data, error } = await supabase
-                .from("users")
-                .select("user_name, user_profile_img")
-                .eq("user_id", studId);
+  const handleFileSelect = (e) => {
+    setDocFile(e.target.files[0]);
+  };
 
-            if (data) {
-                return {
-                    userName: data[0].user_name,
-                    userProfImg: data[0].user_profile_img
-                };
-            }
-            if (error) {
-                console.log(error);
-                console.log("Not submitted");
-                return null;
-            }
-        });
+  const handleFileDownload = async(fileLink, filePath) => {
+    try {
+        // Fetch the image data
+        const response = await fetch(fileLink);
+        const fileData = await response.blob();
 
-        const studentDetails = await Promise.all(studentDetailsPromises);
+        // Create a Blob from the fetched data
+        const blob = new Blob([fileData], { type: response.headers.get("content-type") });
 
-        // Assuming you have state variables to store these details
-        setStudName(studentDetails.map(detail => detail.userName));
-        setStudPic(studentDetails.map(detail => detail.userProfImg));
+
+        // Create a URL for the Blob object
+        const fileURL = URL.createObjectURL(blob);
+
+        const fileName = filePath.split("/").pop(); 
+        // Create a temporary anchor element
+        const anchor = document.createElement("a");
+        anchor.href = fileURL;
+        anchor.download = fileName // Set the default file name here
+        anchor.click();
+
+        // Clean up
+        URL.revokeObjectURL(fileURL);
+    } catch (error) {
+        console.error("Error downloading image:", error);
     }
+}
 
-    useEffect(() => {
-        userIsTeacher();
-        fetchCreatedAssignments();
-        getStudentId();
-        getStudentDetails();
-    }, [studId]);
+useEffect(() => {
+    // Create the Supabase realtime subscription
+    const channels = supabase
+        .channel('custom-all-channel')
+        .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'assignments_duplicate' },
+            (payload) => {
+                console.log('Change received!', payload);
+                // Fetch new assignments when a change occurs
+                fetchAssignments();
+            }
+        )
+        .subscribe();
 
-    return (
-        <div>
-            {userTeacher && (
-                <div>
-                    <Card variant="outlined">
-                        <CardContent>
-                            <Typography variant="h5" component="div">
-                                Create Assignment
-                            </Typography>
-                            <TextField
-                                label="Assignment Name"
-                                variant="outlined"
-                                fullWidth
-                                value={assignmentName}
-                                onChange={handleAssignmentNameChange}
-                                sx={{ mt: 2 }}
-                            />
-                            <Button
-                                onClick={handleAssignmentSubmit}
-                                variant="contained"
-                                color="primary"
-                                sx={{ mt: 2 }}
-                            >
-                                Publish Assignment
-                            </Button>
-                        </CardContent>
-                    </Card>
-                </div>
-            )}
-            <div>
-                <Card variant="outlined">
-                    <CardContent>
-                        <Typography variant="h5" component="div">
-                            {topic}
-                        </Typography>
-                        {!userTeacher && (
-                            <CardActions>
-                                <input type="file" accept=".pdf, .doc, .docx, .xlsx, .xls, .csv, .txt, .exe, .apk, .jar, .rar, .pptx, .zip" onChange={handleFileSelect} />
-                                <Button onClick={uploadFile} component="label" variant="contained" color="primary">
-                                    Upload File
-                                </Button>
-                            </CardActions>
-                        )}
-                    </CardContent>
-                    <CardActions>
-                            {userTeacher && (
-                                    <div>
-                                    {studPic.map((pic, index) => (
-                                        <div style={{ display: "flex" }} key={index}>
-                                            <Avatar key={index} src={pic} alt={`Student Avatar ${index}`} />
-                                            <Typography marginTop="10px" marginLeft="10px">{studName[index]}</Typography>
-                                            <Button variant="contained" color="error" style={{marginLeft: "25px"}}><PictureAsPdf/>Download</Button>
-                                        </div>
-                                    ))}
-                                    </div>
-                            )}
-                    </CardActions>
-                </Card>
-            </div>
-        </div>
-    );
+    // Unsubscribe from the channel when component unmounts
+    return () => {
+        channels.unsubscribe();
+    };
+}, []);
+  return (
+    <div>
+      {userTeacher && (
+        <Card variant="outlined">
+          <CardContent>
+            <Typography variant="h5" component="div">
+              Create Assignment
+            </Typography>
+            <TextField
+              label="Assignment Name"
+              variant="outlined"
+              fullWidth
+              value={assignmentName}
+              onChange={handleAssignmentNameChange}
+              sx={{ mt: 2 }}
+            /><br></br>
+            <Button
+              onClick={handleAssignmentSubmit}
+              variant="contained"
+              color="primary"
+              sx={{ mt: 2 }}
+            >
+              Publish Assignment
+            </Button>
+          </CardContent>
+        </Card>
+      )}
+      
+      <div>
+        {assignments.length > 0 ? (
+          assignments.map((assignment, index) => (
+            <Card key={index} variant="elevation" sx={{ mt: 3 }}>
+                <Typography variant="h5">{assignment.topic}</Typography>
+                
+                {userTeacher && (
+                  <>
+                    <Typography variant="body1">Assignments submitted:</Typography>
+                    {submissions
+                      .filter((s) => s.assignId === assignment.assignId) // Filter by assignId
+                      .map((submission, subIndex) => (
+                        <div key={subIndex} style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
+                          <Avatar src={submission.user_profile_img} alt={submission.user_name} />
+                          <Typography variant="body1" sx={{ marginLeft: "10px" }}>
+                            {submission.user_name}
+                          </Typography>
+                          <Button variant="contained" color="error" onClick={()=>handleFileDownload(submission.file_link, submission.file_path)}><PictureAsPdf/>Download File</Button>
+                        </div>
+                      ))}
+                  </>
+                )}
+  
+                {!userTeacher && (
+                  <CardActions>
+                    <input
+                      type="file"
+                      accept=".pdf, .docx, etc."
+                      onChange={(e) => handleFileSelect(e)}
+                    />
+                    <Button
+                      onClick={() => uploadFile(assignment.topic)}
+                      variant="contained"
+                      color="primary"
+                    >
+                      Upload File
+                    </Button>
+                  </CardActions>
+                )}
+              
+            </Card>
+          ))
+        ) : (
+          <Card variant="elevation" sx={{ mt: 3 }}>
+            <CardContent>
+              <center>
+                <Notifications />
+                <Typography>No Assignments Published</Typography>
+              </center>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    </div>
+  );
+  
 }

@@ -10,15 +10,14 @@ import { Avatar, Card, Typography } from "@mui/joy";
 
 export function Announcements({ classId }) {
     const [userIsCreator, setUserIsCreator] = useState(false);
+    const [teacherId, setTeacherId] = useState()
     const [announcements, setAnnouncements] = useState([])
     const [showAnnouncement, setFetchAnnouncement] = useState([])
+    const [pic, setPic] = useState()
+    const [name,setName] = useState()
     const announcementsRef = useRef(null);
 
-    useEffect(() => {
-        checkUserIsCreator();
-        fetchAnnouncements();
-        subscribeToChanges();
-    }, []);
+   
 
     async function checkUserIsCreator() {
         try {
@@ -33,11 +32,14 @@ export function Announcements({ classId }) {
             if (data && data.length > 0) {
                 const creatorId = data[0].created_by;
                 setUserIsCreator(userId === creatorId);
+                setTeacherId(creatorId)
             }
         } catch (error) {
             console.error("Error checking user creator status:", error);
         }
     }
+
+    
 
     async function handleAnnouncementSend() {
         const getId = await supabase.auth.getUser()
@@ -75,7 +77,21 @@ export function Announcements({ classId }) {
         } catch (error) {
             console.log(error)
         }
+    }
 
+    async function getTeacherDetails(){
+        
+        const {data, error} = await supabase    
+            .from("users")
+            .select("user_name, user_profile_img")
+            .eq("user_id", teacherId)
+        if (data) {
+            setName(data[0].user_name)
+            setPic(data[0].user_profile_img)
+        }
+        else{
+            console.log(error)
+        }
     }
 
 
@@ -97,6 +113,13 @@ export function Announcements({ classId }) {
             console.error("Error subscribing to changes:", error.message);
         }
     }
+
+    useEffect(() => {
+        checkUserIsCreator();
+        fetchAnnouncements();
+        subscribeToChanges();
+        getTeacherDetails();
+    }, [teacherId]);
 
     return (
         <div>
@@ -148,7 +171,7 @@ export function Announcements({ classId }) {
                     <div ref={announcementsRef} style={{ paddingTop: '30px', maxHeight: '80vh', overflowY: 'auto' }}>
                         {showAnnouncement.slice(0).reverse().map((announcement, index) => (
                             <Card key={index} style={{ marginBottom: '10px' }}>
-                                <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" /><Typography level="title-lg">Xabi Alonso</Typography>
+                                <Avatar src={pic} /><Typography level="title-lg">{name}</Typography>
                                 <Typography level="title-md">{announcement.content}</Typography>
                             </Card>
                         ))}
@@ -161,7 +184,7 @@ export function Announcements({ classId }) {
                 <div ref={announcementsRef} style={{ paddingTop: '30px', maxHeight: '80vh', overflowY: 'auto' }}>
                 {showAnnouncement.slice(0).reverse().map((announcement, index) => (
                     <Card key={index} style={{ marginBottom: '10px' }}>
-                        <Avatar src="https://i.pinimg.com/originals/61/a2/87/61a2876f425cc8a7fda39cc9a6d3f00f.jpg" /><Typography level="title-lg">Xabi Alonso</Typography>
+                        <Avatar src={pic} /><Typography level="title-lg">{name}</Typography>
                         <Typography level="title-md">{announcement.content}</Typography>
                     </Card>
                 ))}

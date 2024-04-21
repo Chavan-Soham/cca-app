@@ -106,21 +106,48 @@ export function CreateOrJoin() {
         fetchUserName();
         fetchClasses();
         joinedClassId();
+        const channel = supabase.channel("custom-all-channel")
+            .on(
+                "postgres_changes",
+                { event: "*", schema: "public", table: "class_duplicate" },
+                async (payload) => {
+                    console.log("Change received!", payload);
+                    
+                        fetchClasses(); // Refresh classes after a change
+                        joinedClassId()
+                        joinedClass(); // Also refresh joined classes
+                    
+                }
+            )
+            .subscribe();
+
+        return () => {
+            // Clean up the channel when component is unmounted
+            channel.unsubscribe();
+        };
     }, []) 
+
+    async function getClassId(className){
+        const {data} = await supabase
+            .from("class_duplicate")
+            .select("class_id")
+            .eq("class_name", className)
+        return data[0].class_id
+    }
+    
 
     async function deleteClass(class_name, index) {
         const getId = await supabase.auth.getUser()
         const created_by = getId.data.user.id;
 
-        const { error } = await supabase
-            .from("class_duplicate")
-            .delete()
-            .eq("class_name", class_name)
-            .eq("created_by", created_by)
+        const classId = await getClassId(class_name)
 
-        if (error) {
-            console.log(error)
-        }
+        const {error: announcementError} = await supabase.from("announcements_duplicate").delete().eq("class_id", classId)
+        const {error: assignmentError} = await supabase.from("assignments_duplicate").delete().eq("class_id", classId)
+        const {error: class_members_duplicate} = await supabase.from("class_members_duplicate").delete().eq("classId", classId)
+        const {error: classMsgs} = await supabase.from("messages_duplicate").delete().eq("class_id", classId)
+        const {error: posts} = await supabase.from("posts_duplicate").delete().eq("class_id", classId)
+        const {error} =  await supabase.from("class_duplicate").delete().eq("class_id", classId)
 
         $(`#card-${index}`).hide();
         console.log(`${class_name} deleted successfully`);
@@ -183,7 +210,7 @@ export function CreateOrJoin() {
                             </IconButton>
                         </CardOverflow>
                         <CardContent>
-                            <Typography level="title-md">
+                            <Typography level="title-md" >
                                 <Link overlay underline="none" href="/dashboard" onClick={async () => { setClickedClass(classItem.class_name); }} {...navigateToDashboard()}>
                                     {classItem.class_name}
                                 </Link>
@@ -195,9 +222,7 @@ export function CreateOrJoin() {
                         <CardOverflow variant="soft">
                             <Divider inset="context" />
                             <CardContent orientation="horizontal">
-                                <Typography level="body-xs">6.3K views</Typography>
                                 <Divider orientation="vertical" />
-                                <Typography level="body-xs">1 hour ago</Typography>
                             </CardContent>
                         </CardOverflow>
                     </Card>
@@ -303,30 +328,34 @@ export function CreateOrJoin() {
 
     async function joinedClass(classIds){
         const newClassDetails = []
-        for (const classId of classIds) {
-            const class_id = classId.classId;
-            const { data, error } = await supabase
-                .from("class_duplicate")
-                .select("class_name, class_description, class_image")
-                .eq("class_id", class_id)
-                .single()
-    
-            if (data) {
-                newClassDetails.push({
-                    className: data.class_name,
-                    classDes: data.class_description,
-                    classImg: data.class_image
-                })
+        try {
+            for (const classId of classIds) {
+                const class_id = classId.classId;
+                const { data, error } = await supabase
+                    .from("class_duplicate")
+                    .select("class_name, class_description, class_image")
+                    .eq("class_id", class_id)
+                    .single()
+        
+                if (data) {
+                    newClassDetails.push({
+                        className: data.class_name,
+                        classDes: data.class_description,
+                        classImg: data.class_image
+                    })
+                }
+                if (error) {
+                    console.log(error)
+                }
             }
-            if (error) {
-                console.log(error)
-            }
+            }catch (error) {
+            console.log(error)
+        }
             
             console.log("This is one by one: ", newClassDetails)
             setClassDetails(newClassDetails)
-        }
-
     }
+
 
         function displayJoinedClass() {
             const classCards = [];
@@ -357,9 +386,7 @@ export function CreateOrJoin() {
                         <CardOverflow variant="soft">
                             <Divider inset="context" />
                             <CardContent orientation="horizontal">
-                                <Typography level="body-xs">6.3K views</Typography>
-                                <Divider orientation="vertical" />
-                                <Typography level="body-xs">1 hour ago</Typography>
+                                <Divider orientation="vertical"></Divider>
                             </CardContent>
                         </CardOverflow>
                     </Card>
@@ -379,10 +406,10 @@ export function CreateOrJoin() {
             <br />
             {printName()}
             <br />
-            <h1>{userName} your created classes</h1>
+            <h1 style={{ marginLeft: "20px",fontFamily: "Bookman Old Style", fontWeight: "normal", opacity: "80%"}}>{userName} your created classes</h1>
             {displayClass()}
             <br />
-            <h1>{userName} your joined classes</h1>
+            <h1 style={{ fontFamily: "Bookman Old Style", fontWeight: "normal", opacity: "80%" }}>{userName} your joined classes</h1>
             {displayJoinedClass()}
             <OpenIconSpeedDial />
         </div>
