@@ -75,7 +75,7 @@ export function Assignments({ classId }) {
     }
   }
   
-  // Check if the current user is a teacher
+  
   async function checkIfTeacher() {
     const { data: userData, error: userError } = await supabase.auth.getUser();
     const userId = userData?.user?.id;
@@ -96,7 +96,7 @@ export function Assignments({ classId }) {
     }
   }
 
-  // Fetch all assignments for the given class ID
+  
   async function fetchAssignments() {
     try {
       const { data, error } = await supabase
@@ -105,7 +105,7 @@ export function Assignments({ classId }) {
         .eq("class_id", classId);
 
       if (data) {
-        setAssignments(data); // Store all assignments in the state
+        setAssignments(data); 
       }
 
       if (error) {
@@ -120,7 +120,7 @@ export function Assignments({ classId }) {
     setAssignmentName(e.target.value);
   };
 
-  // Submit a new assignment
+  
   async function handleAssignmentSubmit() {
     try {
       const { data, error } = await supabase
@@ -140,16 +140,16 @@ export function Assignments({ classId }) {
     }
   }
 
-  // Upload a file to a specific assignment
+  
   async function uploadFile(topic) {
     try {
-      const assignment = assignments.find((a) => a.topic === topic); // Find the correct assignment by topic
+      const assignment = assignments.find((a) => a.topic === topic); 
       if (!assignment) {
         console.error("Assignment not found");
         return;
       }
 
-      const assignId = assignment.assignId; // Get the assignId for the correct assignment
+      const assignId = assignment.assignId; 
 
       if (docFile) {
         const uploadPath = `files/${docFile.name}`;
@@ -196,25 +196,25 @@ export function Assignments({ classId }) {
 
   const handleFileDownload = async(fileLink, filePath) => {
     try {
-        // Fetch the image data
+        
         const response = await fetch(fileLink);
         const fileData = await response.blob();
 
-        // Create a Blob from the fetched data
+        
         const blob = new Blob([fileData], { type: response.headers.get("content-type") });
 
 
-        // Create a URL for the Blob object
+        
         const fileURL = URL.createObjectURL(blob);
 
         const fileName = filePath.split("/").pop(); 
-        // Create a temporary anchor element
+       
         const anchor = document.createElement("a");
         anchor.href = fileURL;
-        anchor.download = fileName // Set the default file name here
+        anchor.download = fileName
         anchor.click();
 
-        // Clean up
+        
         URL.revokeObjectURL(fileURL);
     } catch (error) {
         console.error("Error downloading image:", error);
@@ -222,7 +222,7 @@ export function Assignments({ classId }) {
 }
 
 useEffect(() => {
-    // Create the Supabase realtime subscription
+    
     const channels = supabase
         .channel('custom-all-channel')
         .on(
@@ -230,13 +230,13 @@ useEffect(() => {
             { event: '*', schema: 'public', table: 'assignments_duplicate' },
             (payload) => {
                 console.log('Change received!', payload);
-                // Fetch new assignments when a change occurs
+                
                 fetchAssignments();
             }
         )
         .subscribe();
 
-    // Unsubscribe from the channel when component unmounts
+    
     return () => {
         channels.unsubscribe();
     };
@@ -279,10 +279,10 @@ useEffect(() => {
                   <>
                     <Typography variant="body1">Assignments submitted:</Typography>
                     {submissions
-                      .filter((s) => s.assignId === assignment.assignId) // Filter by assignId
+                      .filter((s) => s.assignId === assignment.assignId) 
                       .map((submission, subIndex) => (
                         <div key={subIndex} style={{ display: "flex", alignItems: "center", marginBottom: "10px" }}>
-                          <Avatar src={submission.user_profile_img} alt={submission.user_name} />
+                          <Avatar src={submission.user_profile_img} alt={submission.user_profile_img} />
                           <Typography variant="body1" sx={{ marginLeft: "10px" }}>
                             {submission.user_name}
                           </Typography>

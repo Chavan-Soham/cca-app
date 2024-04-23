@@ -16,21 +16,19 @@ export default function UserImage() {
     };
 
     useEffect(() => {
-        ProfPicLink(); // Fetch profile picture link when the component mounts
+        ProfPicLink(); 
 
-        // Subscribe to real-time changes in the users table
         const channels = supabase.channel('custom-all-channel')
             .on(
                 'postgres_changes',
                 { event: 'UPDATE', schema: 'public', table: 'users' },
                 (payload) => {
-                    // When a change occurs, fetch the updated profile picture link
                     ProfPicLink();
                 }
             )
             .subscribe();
 
-        // Clean up subscription when the component unmounts
+        
         return () => {
             channels.unsubscribe();
         };

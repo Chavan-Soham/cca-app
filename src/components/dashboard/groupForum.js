@@ -34,38 +34,36 @@ const ReceivedMessage = ({ name, message, profileImg, timestamp}) => (
     </Box>
 );
 
-// Custom component for sent messages
-// Custom component for sent messages
+
 const SentMessage = ({ name, message, profileImg, isCurrentUser, timestamp }) => (
     <Box
         display="flex"
-        justifyContent={isCurrentUser ? 'flex-end' : 'flex-start'} // Align to the right if the current user sent the message
-        mb={2} // Add margin bottom
-        sx={{ position: 'relative' }} // To position the name relative to the message box
+        justifyContent={isCurrentUser ? 'flex-end' : 'flex-start'} 
+        sx={{ position: 'relative' }} 
     >
-        {!isCurrentUser && <Avatar/>} {/* Render avatar only if the message is not sent by the current user */}
+        {!isCurrentUser && <Avatar/>} 
         <Box
-            display="flex" // Use flex display to allow items to be positioned easily
-            flexDirection="column" // Stack items vertically
-            maxWidth="70%" // Limit message width to 70% of container
-            borderRadius={10} // Rounded corners
-            bgcolor={isCurrentUser ? "lightgreen" : "lightblue"} // Light green background if sent by current user, light blue otherwise
+            display="flex" 
+            flexDirection="column" 
+            maxWidth="70%" 
+            borderRadius={10} 
+            bgcolor={isCurrentUser ? "lightgreen" : "lightblue"} 
             p={1} // Padding
-            ml={isCurrentUser ? 1 : 0} // Add margin to separate avatar and message box if current user sent the message
-            mr={!isCurrentUser ? 1 : 0} // Add margin to separate message box and avatar if current user didn't send the message
-            position="relative" // Set position relative to allow absolute positioning of timestamp
-            sx={{ paddingRight: '24px', justifyContent: 'space-between' }} // Add padding to the right side for the timestamp and align items in a row
+            ml={isCurrentUser ? 1 : 0} 
+            mr={!isCurrentUser ? 1 : 0} 
+            position="relative" 
+            sx={{ paddingRight: '24px', justifyContent: 'space-between' }} 
         >
-            <Box sx={{ display: 'flex', alignItems: 'center' }}> {/* Container for avatar and name */}
-                {!isCurrentUser && <Avatar src={profileImg} />} {/* Render avatar only if the message is not sent by the current user */}
+            <Box sx={{ display: 'flex', alignItems: 'center' }}> 
+                {!isCurrentUser && <Avatar src={profileImg} />} 
                 <Typography variant="body2" sx={{ fontWeight: 'bold', fontSize: "auto" }}>{name}</Typography>
-                <Typography variant="body2" sx={{  fontWeight: 'light', fontSize: "10px", marginLeft: 5 }}>{timestamp}</Typography> {/* Add margin to separate avatar and name */}
+                <Typography variant="body2" sx={{  fontWeight: 'light', fontSize: "10px", marginLeft: 5 }}>{timestamp}</Typography> 
             </Box>
-            <hr style={{ margin: '4px 0', border: 'none', borderBottom: '1px solid grey' }} /> {/* Horizontal line */}
+            <hr style={{ margin: '4px 0', border: 'none', borderBottom: '1px solid grey' }} /> 
             <Typography variant="body1">{message}</Typography>
             
         </Box>
-        {isCurrentUser && <Avatar src={profileImg}/>} {/* Render avatar only if the message is sent by the current user */}
+        {isCurrentUser && <Avatar src={profileImg}/>} 
     </Box>
 );
 
@@ -102,11 +100,11 @@ export function GroupForum({ classId }) {
             .eq("class_id", classId);
 
             if (data && data.length > 0) {
-                // Sort messages by timestamp in ascending order
+                
                 const sortedMessages = data.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
                 setMessages(sortedMessages);
     
-                // Fetch user details for each sender
+                
                 const senderIds = new Set(data.map(msg => msg.sent_by));
                 await fetchUserDetails([...senderIds]);
             }
@@ -147,7 +145,7 @@ export function GroupForum({ classId }) {
                 'postgres_changes',
                 { event: '*', schema: 'public', table: 'messages_duplicate' },
                 (payload) => {
-                    // Fetch updated messages when a change is received
+                    
                     console.log(payload)
                     retrieveMessages();
                 }
@@ -155,7 +153,7 @@ export function GroupForum({ classId }) {
             .subscribe();
 
         return () => {
-            // Unsubscribe when component unmounts
+            
             channels.unsubscribe();
         };
     }, []);

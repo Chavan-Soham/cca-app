@@ -29,7 +29,8 @@ export function Posts({ classId }) {
     setAnchorEl(null);
   };
 
-  const handleDeletePost = () => {
+  async function handleDeletePost(title) {
+    const {error} = await supabase.from("posts_duplicate").delete().eq("title", title).eq("class_id", classId)
     handleCloseMenu();
   };
   
@@ -367,7 +368,7 @@ export function Posts({ classId }) {
               open={Boolean(anchorEl)}
               onClose={handleCloseMenu}
             >
-              <MenuItem onClick={handleDeletePost}>Delete</MenuItem>
+              <MenuItem onClick={()=> handleDeletePost(post.title)}>Delete</MenuItem>
             </Menu>
           <CardContent>
             <Typography variant="h6" component="div">

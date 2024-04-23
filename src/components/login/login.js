@@ -17,11 +17,9 @@ export default function Login(){
             .select("user_name")
             .eq("user_id", user_id)
             if (data && data.length > 0 && data[0].user_name) {
-                // User_name exists, navigate to create_or_join
                 console.log("User name found!")
                 navigate("/create_or_join");
             } else {
-                // User_name doesn't exist, navigate to welcomeUser
                 navigate("/welcomeUser");
             }
             if (error) {

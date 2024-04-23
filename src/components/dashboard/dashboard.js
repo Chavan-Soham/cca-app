@@ -330,7 +330,7 @@ export function ClassDashboard() {
     }
 
     async function fetchAssignments() {
-        // Fetch all assignments for the class
+        
         const classId = await retClassId()
         const { data, error } = await supabase
             .from("assignments_duplicate")
@@ -351,7 +351,7 @@ export function ClassDashboard() {
     }, [assignments]);
 
     async function fetchAssignmentsWithNonSubmitters() {
-        // Fetch non-submitters for each assignment
+
         const assignmentsWithDetails = [];
 
         for (const assignment of assignments) {
@@ -361,7 +361,7 @@ export function ClassDashboard() {
                 .eq("assignId", assignment.assignId);
 
             if (submissions) {
-                // Fetch all members of the class
+                
                 const { data: members, error: memberError } = await supabase
                     .from("class_members_duplicate")
                     .select("memberId")
@@ -370,12 +370,12 @@ export function ClassDashboard() {
                 if (members) {
                     const submittedByIds = submissions.map((s) => s.submited_by);
 
-                    // Find the non-submitters by comparing with members
+                    
                     const nonSubmitters = members.filter(
                         (member) => !submittedByIds.includes(member.memberId)
                     );
 
-                    // Fetch user details for non-submitters
+                    
                     const userDetailsPromises = nonSubmitters.map(async (nonSubmitter) => {
                         const { data: userData, error: userError } = await supabase
                             .from("users")
@@ -417,7 +417,7 @@ export function ClassDashboard() {
         for (const assignment of assignmentsWithNonSubmitters) {
             const nonSubmitters = assignment.nonSubmitters;
 
-            // Check if the current user is a non-submitter
+            
             const isNonSubmitter = nonSubmitters.some(
                 (nonSubmitter) => nonSubmitter.user_id === user_id
             );
